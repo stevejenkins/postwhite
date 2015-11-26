@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Usage: ./postscreen-spf-whitelist.sh
+# Usage: ./postwhite.sh
 #
 # Requires spf-tools (https://github.com/jsarenik/spf-tools)
 
@@ -12,7 +12,7 @@ spftoolspath=/usr/local/bin/spf-tools
 
 # Postfix location and whitelist filename
 postfixpath=/etc/postfix
-whitelist=postscreen-spf-whitelist.cidr
+whitelist=postscreen_spf_whitelist.cidr
 
 # Toggle senders you want to include (1=on / 0=off)
 
@@ -83,4 +83,4 @@ test -e ${tmp1} && rm ${tmp1}
 test -e ${tmp2} && rm ${tmp2}
 
 # Reload Postfix to pick up any changes
-#/usr/sbin/postfix reload
+/usr/sbin/postfix reload
