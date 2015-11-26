@@ -43,6 +43,10 @@ My blog post discussing how Postwhite came to be is here:
 http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
 
 # Known Issues
-The only known issue with Postwhite is that there is no way currently to validate the CIDR ranges produced by the SPF queries. One might assume that large webmailers would be careful not to publish invalid IP ranges... but you'd be wrong. :) Microsoft is currently publishing **two** invalid IP addresses (207.68.169.173/30 and 65.55.238.128/26) in their SPF record for _spf-ssg-b.microsoft.com. Technically they're publishing three invalid IPs, but two of them are duplicates.
+There is currently no mechanism to validate the CIDR ranges produced by the SPF queries. One might assume that large webmailers would be careful not to publish invalid IP ranges... but you'd be wrong. :) Microsoft is currently publishing **two** invalid IP addresses (207.68.169.173/30 and 65.55.238.128/26) in their SPF record for _spf-ssg-b.microsoft.com. Technically they're publishing three invalid IPs, but two of them are duplicates.
 
 I'm currently looking for a way to validate the CIDR ranges before including them in the whitelist, and ignoring any invalid ones. If you have a good idea how do to that, please fork and/or start a pull request.
+
+Anothe issue is that I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html
+
+I don't know how often it's updated, but it's as good a starting point as any. Currently working on scraping those IPs and including them in the whitelist.
