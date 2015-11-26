@@ -12,7 +12,7 @@ Postwhite requires jsarenik's spf-tools stuie (https://github.com/jsarenik/spf-t
 # Usage
 Once you have the required spf-tools script available on your system, you can run ```./postwhite.sh``` from the command line or via a cron job. I recommend storing it somwhere such as ```/usr/local/bin/postwhite/postwhite.sh```
 
-When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr``` in your Postfix directory then reload Postfix to pick up any changes.
+When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr``` in your Postfix directory then optionally reload Postfix to pick up any changes.
 
 Add the filename to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
 
@@ -23,16 +23,26 @@ Add the filename to the ```postscreen_access_list``` option in your Postfix ```m
 
 Then do a manual ```postfix reload``` or re-run ```./postwhite.sh``` to build a fresh whitelist and automatically reload Postfix.
 # Options
-By default, all available mailers are turned ON, meaning they will be included in the whitelist. You can turn individual mailers OFF but either commenting them out or setting them to zero, like so:
+By default, all available mailers are turned ON, meaning they will be included in the whitelist. You can turn individual mailers OFF but either commenting them out or changing them to "no", like this:
 
-    google=1
-    microsoft=0
-    facebook=1
-    twitter=0
+    google=yes
+    microsoft=no
+    facebook=yes
+    twitter=no
 
 In the above example, Postwhite will only include IP addresses from Google and Facebook in the generated whitelist.
 
-You can also change the whitelist's filename, Postfix location, and spf-tools path location at the top of the file.
+You can also change the whitelist's filename, Postfix location,  spf-tools path location, and whether or not to automatically reload Postfix at the top of the file.
 
 # Credits
-Special thanks goes to Mike Miller for his 2013 gwhitelist script (http://archive.mgm51.com/sources/gwhitelist.html) that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
+Special thanks goes to Mike Miller for his 2013 gwhitelist script (https://archive.mgm51.com/sources/gwhitelist.html) that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
+
+# More Info
+My blog post discussing how Postwhite came to be is here:
+
+http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
+
+# Known Issues
+The only known issue with Postwhite is that there is no way currently to validate the CIDR ranges produced by the SPF queries. One might assume that large webmailers would be careful not to publish invalid IP ranges... but you'd be wrong. :) Microsoft is currently publishing **two** invalid IP addresses (207.68.169.173/30 and 65.55.238.128/26) in their SPF record for _spf-ssg-b.microsoft.com. Technically they're publishing three invalid IPs, but two of them are duplicates.
+
+I'm currently looking for a way to validate the CIDR ranges before including them in the whitelist, and ignoring any invalid ones. If you have a good idea how do to that, please fork and/or start a pull request.
