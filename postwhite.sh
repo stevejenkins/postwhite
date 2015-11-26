@@ -2,7 +2,7 @@
 #
 # Postwhite Automatic Postcreen Whitelist Generator
 #
-# Version 1.2
+# Version 1.3
 # By Steve Jenkins (http://stevejenkins.com/)
 #
 # Usage: ./postwhite.sh
@@ -17,6 +17,7 @@ spftoolspath=/usr/local/bin/spf-tools
 
 # Postfix location and whitelist filename
 postfixpath=/etc/postfix
+postfixbinarypath=/usr/sbin
 whitelist=postscreen_spf_whitelist.cidr
 
 # Toggle senders you want to include
@@ -80,5 +81,5 @@ test -e ${tmp2} && rm ${tmp2}
 
 # Reload Postfix to pick up any changes
 if [ "$reloadpostfix" == "yes" ]; then
-	/usr/sbin/postfix reload
+	${postfixbinarypath}/postfix reload
 fi
