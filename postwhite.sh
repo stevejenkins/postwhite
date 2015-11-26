@@ -37,37 +37,26 @@ if [ "$google" == 1 ]; then
 
 	${spftoolspath}/despf.sh google.com >> ${tmp1}
 
-#	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | \
-#	sed s/$/'   permit'/ >> ${tmp2}
 fi
 
 if [ "$microsoft" == 1 ]; then
 
 	${spftoolspath}/despf.sh outlook.com >> ${tmp1}
 
-#	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | \
-#	sed s/$/'   permit'/ >> ${tmp2}
-
 	${spftoolspath}/despf.sh hotmail.com >> ${tmp1}
 
-#	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | \
-#	sed s/$/'   permit'/ >> ${tmp2}
 fi
 
 if [ "$facebook" == 1 ]; then
 
 	${spftoolspath}/despf.sh facebookmail.com >> ${tmp1}
 
-#	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | \
-#	sed s/$/'   permit'/ >> ${tmp2}
 fi
 
 if [ "$twitter" == 1 ]; then
 
 	${spftoolspath}/despf.sh twitter.com >> ${tmp1}
 
-#	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | \
-#	sed s/$/'   permit'/ >> ${tmp2}
 fi
 
 # Format the whitelist
