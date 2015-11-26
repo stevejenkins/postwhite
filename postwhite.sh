@@ -15,7 +15,6 @@ postfixpath=/etc/postfix
 whitelist=postscreen_spf_whitelist.cidr
 
 # Toggle senders you want to include (1=on / 0=off)
-
 google=1
 microsoft=1
 facebook=1
@@ -60,11 +59,9 @@ if [ "$twitter" == 1 ]; then
 fi
 
 # Format the whitelist
-
 printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | sed s/$/'	permit'/ > ${tmp2}
 
 # Sort and unique the final list and write to Postfix directory
-
 sort -u ${tmp2} > ${postfixpath}/${whitelist}
 
 # Remove temp files
