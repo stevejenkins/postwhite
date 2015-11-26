@@ -7,7 +7,7 @@ Postwhite uses the published SPF records of large webmailers (like Gmail and Hot
 Note this does not whitelist email from these hosts. It merely tells Postscreen (the first line of Postfix's defense) that these hosts are allowed to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
 
 # Requirements
-Postwhite requires the despf.sh script from jsarenik's https://github.com/jsarenik/spf-tools. Go ahead and clone/install the entire tools suite. It's pretty cool. :)
+Postwhite requires jsarenik's spf-tools stuie (https://github.com/jsarenik/spf-tools). Clone or copy the project to your local system, then set the ```spftoolspath``` option in ```postwhite.sh```.
 
 # Usage
 Once you have the required spf-tools script available on your system, you can run ```./postwhite.sh``` from the command line or via a cron job. I recommend storing it somwhere such as ```/usr/local/bin/postwhite/postwhite.sh```
