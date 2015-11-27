@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # Postwhite Automatic Postcreen Whitelist Generator
 #
@@ -14,6 +14,8 @@
 
 # spf-tools location (REQUIRED)
 spftoolspath=/usr/local/bin/spf-tools
+# ipcalc location (REQUIRED)
+ipcalc=/usr/local/bin/ipcalc
 
 # Postfix location and whitelist filename
 postfixpath=/etc/postfix
@@ -43,6 +45,24 @@ tmp2=`mktemp -q /tmp/${tmpBase}.XXXXXX`
 # abort on any error
 set -e
 
+function normalize_cidr() {
+	# split by ":"
+	local array=(${ip/:/ });
+	if [ "x${array[0]}" = "xip4" ] ; then
+		# check if is a CIDR
+		if [[ ${array[1]} == *"/"* ]]
+		then
+			IP=$($ipcalc -b ${array[1]} | awk '/^Network/ {print $2}');
+		else
+			IP=${array[1]}
+		fi
+	else
+		IP=${array[1]}
+	fi
+	echo $IP
+}
+
+
 if [ "$google" == "yes" ]; then
 
 	${spftoolspath}/despf.sh google.com >> ${tmp1}
@@ -70,10 +90,13 @@ if [ "$twitter" == "yes" ]; then
 fi
 
 # Format the whitelist
-printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | sed s/$/'	permit'/ > ${tmp2}
+for ip in `cat  ${tmp1}` ; do
+	ip=$(normalize_cidr  $ip);
+	echo -ne "$ip\tpermit\n"
+done >> ${tmp2}
 
 # Sort and unique the final list and write to Postfix directory
-sort -u ${tmp2} > ${postfixpath}/${whitelist}
+sort -n -u ${tmp2} > ${postfixpath}/${whitelist}
 
 # Remove temp files
 test -e ${tmp1} && rm ${tmp1}
