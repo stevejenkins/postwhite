@@ -144,24 +144,21 @@ if [ "$badCIDR" == "fix" ] ; then
 elif [ "$badCIDR" == "strip" ] ; then
 
 	for ip in `cat  ${tmp1}` ; do
-		
-		origip=${ip}
+		origip=$( echo "$ip" | cut -d\: -f2 )
 		ip=$(normalize_cidr $ip);
-
+		
 		if [ "$origip" == "$ip" ] ; then
-			echo -ne "$ip\tpermit\n"
+			echo -ne "$origip\tpermit\n"
 		fi
-
 	done >> ${tmp2}
 
-# Assume you want to "keep" invalid CIDRs if you don't "fix" or "strip" them
+elif [ "$badCIDR" == "keep" ] ; then
 
-else
 	printf "%s\n" | grep "^ip" ${tmp1} | cut -c5- | sed s/$/'	permit'/ > ${tmp2}
 fi
 
 # Sort and unique the final list and write to Postfix directory
-sort -n -u ${tmp2} > ${postfixpath}/${whitelist}
+sort -u ${tmp2} > ${postfixpath}/${whitelist}
 
 # Remove temp files
 #test -e ${tmp1} && rm ${tmp1}
