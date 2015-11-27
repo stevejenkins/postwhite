@@ -36,6 +36,8 @@ By default, all available mailers are turned ON, meaning they will be included i
 
 In the above example, Postwhite will only include IP addresses from Google and Facebook in the generated whitelist. Additional mailers are added from time to time, so come back and check for new versions periodically.
 
+You also have the option whether to fix, strip, or keep invalid IPv4 CIDR ranges that are reported by mailers. Choosing "fix" will fix the IP address and keep the indicated prefix lengt, "strip" will remove the invalid CIDR from the whitelist completely, and "keep" will include the invalid CIDR in the whitelist (Postfix will issue you a warning in your maillog, but this is otherwise harmless).
+
 You can also change the whitelist's filename, Postfix location, spf-tools path location, ipcalc location, and whether or not to automatically reload Postfix at the top of the file.
 
 # Credits
