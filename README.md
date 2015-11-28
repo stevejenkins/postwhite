@@ -15,7 +15,10 @@ Postwhite runs as a **Bash** script and relies on two additional scripts to func
 * **<a target="_blank" href="http://jodies.de/ipcalc">ipcalc</a>** to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
 
 # Usage
-Once you have spf-tools and ipcalc available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, set a weekly cron job to pick up any new hosts in the mailers' SPF records.
+Once you have spf-tools and ipcalc available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, 
+set a weekly cron job to pick up any new hosts in the mailers' SPF records, such as this:
+
+    @weekly /usr/local/bin/postwhite/postwhite > /dev/null 2>&1 #Update Postscreen Whitelists
 
 When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then optionally reload Postfix to pick up any changes.
 
