@@ -3,7 +3,7 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-  version=1.11
+  version=1.12
 # Last updated: 27 Nov 2015
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
@@ -34,27 +34,35 @@ whitelist=postscreen_spf_whitelist.cidr
 # Toggle senders you want to include below
 
 # Webmail Providers
+aol=yes
 google=yes
+gmx=yes
+inbox=yes
+mac=yes
+mail=yes
 microsoft=yes
+zoho=yes
 
 #Social Networks
 facebook=yes
-twitter=yes
-pinterest=yes
 instagram=yes
-tumblr=yes
+linkedin=yes
+pinterest=yes
 reddit=yes
-linkedin=no
+tumblr=yes
+twitter=yes
 
 # Ecommerce
-craigslist=yes
 amazon=no
+craigslist=yes
+ebay=yes
 
 # Bulk Senders
-sendgrid=yes
-mailchimp=yes
-exacttarget=yes
 constantcontact=yes
+exacttarget=yes
+icontact=yes
+mailchimp=yes
+sendgrid=yes
 
 # Misc
 zendesk=yes
@@ -106,6 +114,30 @@ if [ "$microsoft" == "yes" ]; then
 	${spftoolspath}/despf.sh hotmail.com >> "${tmp1}"
 fi
 
+if [ "$aol" == "yes" ]; then
+	${spftoolspath}/despf.sh aol.com >> "${tmp1}"
+fi
+
+if [ "$gmx" == "yes" ]; then
+	${spftoolspath}/despf.sh gmx.com >> "${tmp1}"
+fi
+
+if [ "$mac" == "yes" ]; then
+	${spftoolspath}/despf.sh icloud.com >> "${tmp1}"
+fi
+
+if [ "$mail" == "yes" ]; then
+	${spftoolspath}/despf.sh mail.com >> "${tmp1}"
+fi
+
+if [ "$inbox" == "yes" ]; then
+	${spftoolspath}/despf.sh inbox.com >> "${tmp1}"
+fi
+
+if [ "$zoho" == "yes" ]; then
+	${spftoolspath}/despf.sh zoho.com >> "${tmp1}"
+fi
+
 if [ "$facebook" == "yes" ]; then
 	${spftoolspath}/despf.sh facebookmail.com >> "${tmp1}"
 fi
@@ -142,6 +174,12 @@ if [ "$amazon" == "yes" ]; then
 	${spftoolspath}/despf.sh amazon.com >> "${tmp1}"
 fi
 
+if [ "$ebay" == "yes" ]; then
+	${spftoolspath}/despf.sh s._spf.ebay.com >> "${tmp1}"
+	${spftoolspath}/despf.sh c._spf.ebay.com >> "${tmp1}"
+	${spftoolspath}/despf.sh p._spf.ebay.com >> "${tmp1}"
+fi
+
 if [ "$sendgrid" == "yes" ]; then
 	${spftoolspath}/despf.sh sendgrid.com >> "${tmp1}"
 	${spftoolspath}/despf.sh sendgrid.net >> "${tmp1}"
@@ -158,6 +196,11 @@ fi
 if [ "$constantcontact" == "yes" ]; then
 	${spftoolspath}/despf.sh constantcontact.com >> "${tmp1}"
 fi
+
+if [ "$icontact" == "yes" ]; then
+	${spftoolspath}/despf.sh icontact.com >> "${tmp1}"
+fi
+
 
 if [ "$zendesk" == "yes" ]; then
 	${spftoolspath}/despf.sh zendesk.com >> "${tmp1}"
