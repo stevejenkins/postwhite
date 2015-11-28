@@ -11,7 +11,7 @@ Note this does *not* whitelist any email messages from these hosts. A whitelist 
 # Requirements
 Postwhite runs as a **Bash** script and relies on two additional scripts to function properly:
 
-* **despf.sh** from the  <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> suite to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirm the ```spftoolspath``` value in ```postwhite```.
+* **despf.sh** from the  <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> suite to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
 * **<a target="_blank" href="http://jodies.de/ipcalc">ipcalc</a>** to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
 
 # Usage
@@ -61,7 +61,7 @@ My blog post discussing how Postwhite came to be is here:
 http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
 
 # Known Issues
-* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and including them in the whitelist. If you have a suggestion for a more elegant solution, please create an issue and let me know!
+* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and include them in the whitelist. If you have a suggestion for a more elegant solution, please create an issue and let me know!
 
 * I have no way of validating IPv6 CIDRs yet. For now, the script assumes all SPF-published IPv6 CIDRs are valid and includes them in the whitelist.
 
