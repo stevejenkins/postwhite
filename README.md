@@ -63,5 +63,8 @@ I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't s
 I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and including them in the whitelist. If you have a suggestion for a more elegant 
 solution, please create an issue and let me know!
 
+# Suggestions for Additional Mailers
+If you're a Postfix admin who sees a good number of ```PASS OLD``` entries for Postscreen in your mail logs, and have a suggestion for an additional mail host that might be a good candidate to include in Postwhite, please comment on this issue: https://github.com/stevejenkins/postwhite/issues/2
+
 # Disclaimer
 You are totally responsible for anything this script does to your system. Whether it launches a nice game of Tic Tac Toe or global thermonuclear war, you're on your own. :)
