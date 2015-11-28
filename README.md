@@ -53,8 +53,8 @@ Other options include changing the whitelist's filename, Postfix location, spf-t
 # Credits
 * Special thanks to Mike Miller for his 2013 <a target="_blank" href="https://archive.mgm51.com/sources/gwhitelist.html">gwhitelist script</a> that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
 * Thanks to Jan Sarenik (author of <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a>).
-* Thanks to Jose Borges Ferreira for suggesting I could use ipcalc to help validate CIDRs, and for providing a patch to help get me started.
-* Thanks to partner (business... not life) Steve Cook for helping me cludge through Bash scripting, which really isn't my bag.
+* Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for suggesting I could use ipcalc to help validate CIDRs, and for providing a patch to help get me started.
+* Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, which really isn't my bag.
 
 # More Info
 My blog post discussing how Postwhite came to be is here:
