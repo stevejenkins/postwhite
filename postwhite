@@ -2,7 +2,7 @@
 #
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
-# Version 1.8 (27 Nov 2015)
+# Version 1.9 (27 Nov 2015)
 # By Steve Jenkins (http://stevejenkins.com/)
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
@@ -141,7 +141,7 @@ elif [ "$badip4" == "keep" ] ; then
 fi
 
 # Sort and unique the final list and write finalized whitelist to Postfix directory
-sort -u "${tmp2}" > ${postfixpath}/${whitelist}
+sort -V -u "${tmp2}" > ${postfixpath}/${whitelist}
 
 # Remove temp files
 test -e "${tmp1}" && rm "${tmp1}"
