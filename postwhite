@@ -86,6 +86,31 @@ tmp3=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 	fi
 
 # Create IPv4 normalization function
+
+ip2int() {
+    local a b c d
+    { IFS=. read a b c d; } <<< $1
+    echo $(((((((a << 8) | b) << 8) | c) << 8) | d))
+}
+
+int2ip() {
+    local ui32=$1; shift
+    local ip n
+    for n in 1 2 3 4; do
+        ip=$((ui32 & 0xff))${ip:+.}$ip
+        ui32=$((ui32 >> 8))
+    done
+    echo $ip
+}
+
+network() {
+    local ip netmask;
+    { IFS="/" read ip netmask; } <<< $1
+    local addr=$(ip2int $ip);
+    local mask=$((0xffffffff << (32 -$netmask)));
+    echo $(int2ip $((addr & mask)))/$netmask
+}
+
 function normalize_ipv4() {
 	# split by ":"
 	local array=(${ip/:/ });
@@ -94,7 +119,7 @@ function normalize_ipv4() {
 		if [[ ${array[1]} == *"/"32 ]] ; then
 			IP=${array[1]}
 		elif [[ ${array[1]} == *"/"* ]] ; then
-			IP=$($ipcalc -b "${array[1]}" | awk '/^Network/ {print $2}');
+			IP=$(network ${array[1]});
 		else
 			IP=${array[1]}
 		fi
