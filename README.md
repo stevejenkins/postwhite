@@ -58,10 +58,9 @@ My blog post discussing how Postwhite came to be is here:
 http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
 
 # Known Issues
-I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html
+* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and including them in the whitelist. If you have a suggestion for a more elegant solution, please create an issue and let me know!
 
-I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and including them in the whitelist. If you have a suggestion for a more elegant 
-solution, please create an issue and let me know!
+* I have no way of validating IPv6 CIDRs yet. For now, the script assumes all SPF-published IPv6 CIDRs are valid and includes them in the whitelist.
 
 # Suggestions for Additional Mailers
 If you're a Postfix admin who sees a good number of ```PASS OLD``` entries for Postscreen in your mail logs, and have a suggestion for an additional mail host that might be a good candidate to include in Postwhite, please comment on this issue: https://github.com/stevejenkins/postwhite/issues/2
