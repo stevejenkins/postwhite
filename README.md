@@ -6,13 +6,13 @@ Postwhite uses the published SPF records of large webmailers (like Gmail and Hot
 
 This allows Postscreen to save time and resources by immediately handing off connections from these hosts (which we can somewhat safely presume are properly configured) to Postfix's smtpd process for further action.
 
-Note this does **not** whitelist any email messages from these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
+Note this does *not* whitelist any email messages from these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
 
 # Requirements
-Postwhite runs as a ***Bash*** script and relies on two additional scripts to function properly:
+Postwhite runs as a **Bash** script and relies on two additional scripts to function properly:
 
-* ***despf.sh*** from the SPF-Tools suite (https://github.com/jsarenik/spf-tools) to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirm the ```spftoolspath``` value in ```postwhite```.
-* ***ipcalc*** (http://jodies.de/ipcalc) to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
+* **despf.sh** from the SPF-Tools suite (https://github.com/jsarenik/spf-tools) to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirm the ```spftoolspath``` value in ```postwhite```.
+* **ipcalc** (http://jodies.de/ipcalc) to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
 
 # Usage
 Once you have spf-tools and ipcalc available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, set a weekly cron job to pick up any new hosts in the mailers' SPF records.
@@ -40,10 +40,10 @@ In the above example, Postwhite will only include IP addresses from Google and F
 
 You can also choose how to handle malformed or invalid CIDR ranges that appear in the mailers' SPF records (which happens more often than it should). The options are:
 
-* ***strip*** - the default action, it removes the invalid CIDR range so it doesn't appear in the whitelist.
-* ***keep*** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly 
+* **strip** - the default action, it removes the invalid CIDR range so it doesn't appear in the whitelist.
+* **keep** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly 
 ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough cough).
-* ***fix*** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
+* **fix** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
 
 Other options include changing the whitelist's filename, Postfix location, spf-tools path location, ipcalc location, and whether or not to automatically reload Postfix.
 
