@@ -11,8 +11,8 @@ Note this does *not* whitelist any email messages from these hosts. A whitelist 
 # Requirements
 Postwhite runs as a **Bash** script and relies on two additional scripts to function properly:
 
-* **despf.sh** from the SPF-Tools suite (https://github.com/jsarenik/spf-tools) to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirm the ```spftoolspath``` value in ```postwhite```.
-* **ipcalc** (http://jodies.de/ipcalc) to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
+* **despf.sh** from the  <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> suite to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirm the ```spftoolspath``` value in ```postwhite```.
+* **<a target="_blank" href="http://jodies.de/ipcalc">ipcalc</a>** to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
 
 # Usage
 Once you have spf-tools and ipcalc available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, set a weekly cron job to pick up any new hosts in the mailers' SPF records.
@@ -48,8 +48,8 @@ ignore the rule. Useful only if you want to see which mailers are less than care
 Other options include changing the whitelist's filename, Postfix location, spf-tools path location, ipcalc location, and whether or not to automatically reload Postfix.
 
 # Credits
-* Special thanks goes to Mike Miller for his 2013 gwhitelist script (https://archive.mgm51.com/sources/gwhitelist.html) that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
-* Thanks to Jose Borges Ferreira (author of SPF-Tools) for suggesting I could use ipcalc to help validate CIDRs, and for providing a patch to help get me started.
+* Special thanks to Mike Miller for his 2013 <a target="_blank" href="https://archive.mgm51.com/sources/gwhitelist.html">gwhitelist script</a> that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
+* Thanks to Jose Borges Ferreira (author of <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a>) for suggesting I could use ipcalc to help validate CIDRs, and for providing a patch to help get me started.
 * Thanks to partner (business... not life) Steve Cook for helping me cludge through Bash scripting, which really isn't my bag.
 
 # More Info
