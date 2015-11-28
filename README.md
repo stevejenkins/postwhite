@@ -42,7 +42,7 @@ You can also choose how to handle malformed or invalid CIDR ranges that appear i
 
 * **strip** - the default action, it removes the invalid CIDR range so it doesn't appear in the whitelist.
 * **keep** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly 
-ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough cough).
+ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough, cough).
 * **fix** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
 
 Other options include changing the whitelist's filename, Postfix location, spf-tools path location, ipcalc location, and whether or not to automatically reload Postfix.
