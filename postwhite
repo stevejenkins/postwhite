@@ -3,7 +3,7 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-  version=1.10
+  version=1.11
 # Last updated: 27 Nov 2015
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
@@ -40,12 +40,24 @@ microsoft=yes
 #Social Networks
 facebook=yes
 twitter=yes
-linkedin=yes
+pinterest=yes
+instagram=yes
+tumblr=yes
+reddit=yes
+linkedin=no
+
+# Ecommerce
+craigslist=yes
+amazon=no
 
 # Bulk Senders
-amazon=no
-mailchimp=no
-exacttarget=no
+sendgrid=yes
+mailchimp=yes
+exacttarget=yes
+constantcontact=yes
+
+# Misc
+zendesk=yes
 
 # Reload Postfix Automatically when done?
 reloadpostfix=yes
@@ -102,12 +114,37 @@ if [ "$twitter" == "yes" ]; then
 	${spftoolspath}/despf.sh twitter.com >> "${tmp1}"
 fi
 
+if [ "$pinterest" == "yes" ]; then
+	${spftoolspath}/despf.sh pinterest.com >> "${tmp1}"
+fi
+
+if [ "$instagram" == "yes" ]; then
+	${spftoolspath}/despf.sh instagram.com >> "${tmp1}"
+fi
+
+if [ "$tumblr" == "yes" ]; then
+	${spftoolspath}/despf.sh tumblr.com >> "${tmp1}"
+fi
+
+if [ "$reddit" == "yes" ]; then
+	${spftoolspath}/despf.sh reddit.com >> "${tmp1}"
+fi
+
 if [ "$linkedin" == "yes" ]; then
 	${spftoolspath}/despf.sh linkedin.com >> "${tmp1}"
 fi
 
+if [ "$craigslist" == "yes" ]; then
+	${spftoolspath}/despf.sh craigslist.org >> "${tmp1}"
+fi
+
 if [ "$amazon" == "yes" ]; then
 	${spftoolspath}/despf.sh amazon.com >> "${tmp1}"
+fi
+
+if [ "$sendgrid" == "yes" ]; then
+	${spftoolspath}/despf.sh sendgrid.com >> "${tmp1}"
+	${spftoolspath}/despf.sh sendgrid.net >> "${tmp1}"
 fi
 
 if [ "$mailchimp" == "yes" ]; then
@@ -116,6 +153,14 @@ fi
 
 if [ "$exacttarget" == "yes" ]; then
 	${spftoolspath}/despf.sh exacttarget.com >> "${tmp1}"
+fi
+
+if [ "$constantcontact" == "yes" ]; then
+	${spftoolspath}/despf.sh constantcontact.com >> "${tmp1}"
+fi
+
+if [ "$zendesk" == "yes" ]; then
+	${spftoolspath}/despf.sh zendesk.com >> "${tmp1}"
 fi
 
 # Check for invalid IPv4 addresses/CIDRs, then format the whitelist
