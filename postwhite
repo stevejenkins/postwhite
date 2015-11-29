@@ -3,7 +3,7 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-  version=1.13
+  version=1.14
 # Last updated: 28 Nov 2015
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
@@ -23,15 +23,23 @@ spftoolspath=/usr/local/bin/spf-tools
 # ipcalc location (REQUIRED)
 ipcalc=/usr/local/bin/postwhite/ipcalc/ipcalc
 
-# Do this to invalid IPv4 addresses and CIDRs (keep / strip / fix)
-badip4=strip
+# Do this to invalid IPv4 addresses and CIDRs (remove / fix / keep)
+badip4=remove
+
+# Simplify (remove) IP addresses from whitelist that are already covered by CIDRs
+# WARNING: if you have many mailers selected, enabling this option can dramatically
+# increase the time Postwhite takes to run. Try it once, then come back and turn it off. :)
+simplify=no
 
 # Paths
 postfixpath=/etc/postfix
 postfixbinarypath=/usr/sbin
 whitelist=postscreen_spf_whitelist.cidr
 
-# Toggle senders you want to include below
+# Reload Postfix Automatically when done?
+reloadpostfix=yes
+
+# Choose "yes" or "no" to select from the following senders:
 
 # Webmail Providers
 aol=yes
@@ -67,9 +75,6 @@ sendgrid=yes
 # Misc
 zendesk=yes
 
-# Reload Postfix Automatically when done?
-reloadpostfix=yes
-
 # NO NEED TO EDIT PAST THIS LINE
 
 # abort on any error
@@ -80,12 +85,13 @@ tmpBase=$(basename "$0")
 tmp1=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp2=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp3=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
+tmp4=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 	if [ $? -ne 0 ]; then
-		echo "$0: Can't create temp file, exiting..."
+		echo "$0: Can't create temp files, exiting..."
 		exit 1
 	fi
 
-# Create IPv4 normalization function
+# Functions we'll need later
 function normalize_ipv4() {
 	# split by ":"
 	local array=(${ip/:/ });
@@ -104,118 +110,185 @@ function normalize_ipv4() {
 	echo "$IP"
 }
 
-# Recursively query selected mailers' SPF records
+function query_host() {
+	"${spftoolspath}"/despf.sh "$1" >> "${tmp1}"
+}
+
+function show_dots() {
+	while ps |grep $1 &>/dev/null; do
+       echo -n "."
+       sleep 1
+	done
+	echo -e " "
+}
+
+# Let's DO this!
+
+echo -e "\nStarting Postwhite v$version!\n"
+
+# Query selected mailers
+echo -e "Recursively querying SPF records of selected mailers...\n"
+
 if [ "$google" == "yes" ]; then
-	${spftoolspath}/despf.sh google.com >> "${tmp1}"
+	host=google.com
+	$(query_host "$host");
 fi
 
 if [ "$microsoft" == "yes" ]; then
-	${spftoolspath}/despf.sh outlook.com >> "${tmp1}"
-	${spftoolspath}/despf.sh hotmail.com >> "${tmp1}"
+	host=microsoft.com
+	$(query_host "$host");
+	host=outlook.com
+	$(query_host "$host");
+	host=hotmail.com
+	$(query_host "$host");
 fi
 
 if [ "$aol" == "yes" ]; then
-	${spftoolspath}/despf.sh aol.com >> "${tmp1}"
+	host=aol.com
+	$(query_host "$host");
 fi
 
 if [ "$gmx" == "yes" ]; then
-	${spftoolspath}/despf.sh gmx.com >> "${tmp1}"
+		host=gmx.com
+	$(query_host "$host");
 fi
 
 if [ "$mac" == "yes" ]; then
-	${spftoolspath}/despf.sh icloud.com >> "${tmp1}"
+	host=icloud.com
+	$(query_host "$host");
 fi
 
 if [ "$mail" == "yes" ]; then
-	${spftoolspath}/despf.sh mail.com >> "${tmp1}"
+	host=mail.com
+	$(query_host "$host");
 fi
 
 if [ "$inbox" == "yes" ]; then
-	${spftoolspath}/despf.sh inbox.com >> "${tmp1}"
+	host=inbox.com
+	$(query_host "$host");
 fi
 
 if [ "$zoho" == "yes" ]; then
-	${spftoolspath}/despf.sh zoho.com >> "${tmp1}"
+	host=zoho.com
+	$(query_host "$host");
 fi
 
 if [ "$facebook" == "yes" ]; then
-	${spftoolspath}/despf.sh facebookmail.com >> "${tmp1}"
+	host=facebookmail.com
+	$(query_host "$host");
 fi
 
 if [ "$twitter" == "yes" ]; then
-	${spftoolspath}/despf.sh twitter.com >> "${tmp1}"
+	host=twitter.com
+	$(query_host "$host");
 fi
 
 if [ "$pinterest" == "yes" ]; then
-	${spftoolspath}/despf.sh pinterest.com >> "${tmp1}"
+	host=pinterest.com
+	$(query_host "$host");
 fi
 
 if [ "$instagram" == "yes" ]; then
-	${spftoolspath}/despf.sh instagram.com >> "${tmp1}"
+	host=instagram.com
+	$(query_host "$host");
 fi
 
 if [ "$tumblr" == "yes" ]; then
-	${spftoolspath}/despf.sh tumblr.com >> "${tmp1}"
+	host=tumblr.com
+	$(query_host "$host");
 fi
 
 if [ "$reddit" == "yes" ]; then
-	${spftoolspath}/despf.sh reddit.com >> "${tmp1}"
+	host=reddit.com
+	$(query_host "$host");
 fi
 
 if [ "$linkedin" == "yes" ]; then
-	${spftoolspath}/despf.sh linkedin.com >> "${tmp1}"
+	host=linkedin.com
+	$(query_host "$host");
 fi
 
 if [ "$craigslist" == "yes" ]; then
-	${spftoolspath}/despf.sh craigslist.org >> "${tmp1}"
+	host=craigslist.org
+	$(query_host "$host");
 fi
 
 if [ "$amazon" == "yes" ]; then
-	${spftoolspath}/despf.sh amazon.com >> "${tmp1}"
+	host=amazon.com
+	$(query_host "$host");
 fi
 
 if [ "$ebay" == "yes" ]; then
-	${spftoolspath}/despf.sh s._spf.ebay.com >> "${tmp1}"
-	${spftoolspath}/despf.sh c._spf.ebay.com >> "${tmp1}"
-	${spftoolspath}/despf.sh p._spf.ebay.com >> "${tmp1}"
+	host=s._spf.ebay.com
+	$(query_host "$host");
+	host=c._spf.ebay.com
+	$(query_host "$host");
+	host=p._spf.ebay.com
+	$(query_host "$host");
 fi
 
 if [ "$sendgrid" == "yes" ]; then
-	${spftoolspath}/despf.sh sendgrid.com >> "${tmp1}"
-	${spftoolspath}/despf.sh sendgrid.net >> "${tmp1}"
+	host=sendgrid.com
+	$(query_host "$host");
+	host=sendgrid.net
+	$(query_host "$host");
 fi
 
 if [ "$mailchimp" == "yes" ]; then
-	${spftoolspath}/despf.sh mailchimp.com >> "${tmp1}"
+	host=mailchimp.com
+	$(query_host "$host");
 fi
 
 if [ "$exacttarget" == "yes" ]; then
-	${spftoolspath}/despf.sh exacttarget.com >> "${tmp1}"
+	host=exacttarget.com
+	$(query_host "$host");
 fi
 
 if [ "$constantcontact" == "yes" ]; then
-	${spftoolspath}/despf.sh constantcontact.com >> "${tmp1}"
+	host=constantcontact.com
+	$(query_host "$host");
 fi
 
 if [ "$icontact" == "yes" ]; then
-	${spftoolspath}/despf.sh icontact.com >> "${tmp1}"
+	host=icontact.com
+	$(query_host "$host");
 fi
-
 
 if [ "$zendesk" == "yes" ]; then
-	${spftoolspath}/despf.sh zendesk.com >> "${tmp1}"
+	host=zendesk.com
+	$(query_host "$host");
 fi
 
-# Check for invalid IPv4 addresses/CIDRs, then format the whitelist
+# If enabled, simplify (remove) any individual IPs already included in CIDR ranges (disabled by default)
+if [ "$simplify" == "yes" ]; then
+	echo -e ""
+	echo -n "Simplifying IP addresses already included in CIDR ranges. This can take a LONG time if you have many mailers selected. Please be patient..."
+	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}" &
+	show_dots $!
+	echo -e "\nIP address simplification complete."
+else
+	cat "${tmp1}" > "${tmp2}"
+fi
+
+# Check for invalid IPv4 CIDRs, then format the whitelist
+
+# If enabled, fix invalid CIDRs
 if [ "$badip4" == "fix" ] ; then
-	for ip in $(cat  "${tmp1}") ; do
+	echo -e ""
+	echo -n "Fixing invalid IPv4 CIDRs..."
+	for ip in $(cat  "${tmp2}") ; do
 		ip=$(normalize_ipv4  "$ip");
 		if [ -n "$ip" ] ; then
 			echo -ne "$ip\tpermit\n"
 		fi
-	done >> "${tmp2}"
-elif [ "$badip4" == "strip" ] ; then
-	for ip in $(cat "${tmp1}") ; do
+	done >> "${tmp3}" &
+	show_dots $!
+
+# If enabled, remove invalid CIDRs
+elif [ "$badip4" == "remove" ] ; then
+	echo -e ""
+	echo -n "Removing invalid IPv4 CIDRs..."
+	for ip in $(cat "${tmp2}") ; do
 		iptype=$( echo "$ip" | cut -d\: -f1 )
 		origip=$( echo "$ip" | cut -d\: -f2 )
 		ip=$(normalize_ipv4 "$ip");
@@ -224,26 +297,37 @@ elif [ "$badip4" == "strip" ] ; then
 		elif [ "$iptype" == "ip6" ] ; then
 			echo -ne "$ip\tpermit\n"
 		fi
-		done >> "${tmp2}"
-elif [ "$badip4" == "keep" ] ; then
+	done >> "${tmp3}" &
+	show_dots $!
 
-	printf "%s\n" | grep "^ip" "${tmp1}" | cut -c5- | sed s/$/'	permit'/ > "${tmp2}"
+# If enabled, keep invalid CIDRs
+elif [ "$badip4" == "keep" ] ; then
+	echo -e "\nKeeping invalid IPv4 CIDRs..."
+	printf "%s\n" | grep "^ip" "${tmp2}" | cut -c5- | sed s/$/'	permit'/ > "${tmp3}"
 fi
 
-# Sort and unique the final list and write finalized whitelist to Postfix directory
-sort -t . -k 1,1n -k 2,2n -k 3,3n -k 4,4n -u "${tmp2}" > "${tmp3}"
-numentries=$(cat "${tmp3}" | wc -l)
-echo -e "# Generated by Postwhite v$version on $(date)\n# https://github.com/stevejenkins/postwhite/\n# $numentries total entries" > "${postfixpath}"/"${whitelist}"
-cat "${tmp3}" >> "${postfixpath}"/"${whitelist}"
+# Sort, unique, and count final rules
+echo -e "\nSorting whitelist rules...\n"
+sort -u "${tmp3}" > "${tmp4}"
+numrules=$(cat "${tmp4}" | wc -l)
+
+# Write whitelist to Postfix directory
+echo -e "Writing $numrules whitelist rules to ${postfixpath}/${whitelist}...\n"
+echo -e "# Generated by Postwhite v$version on $(date)\n# https://github.com/stevejenkins/postwhite/\n# $numrules total rules" > "${postfixpath}"/"${whitelist}"
+cat "${tmp4}" >> "${postfixpath}"/"${whitelist}"
 
 # Remove temp files
 test -e "${tmp1}" && rm "${tmp1}"
 test -e "${tmp2}" && rm "${tmp2}"
 test -e "${tmp3}" && rm "${tmp3}"
+test -e "${tmp4}" && rm "${tmp4}"
 
 # Reload Postfix to pick up changes in whitelist
 if [ "$reloadpostfix" == "yes" ]; then
+echo -e 'Reloading Postfix configuration to refresh whitelist rules...\n'
 	${postfixbinarypath}/postfix reload
 fi
+
+echo -e '\nDone!'
 
 exit
