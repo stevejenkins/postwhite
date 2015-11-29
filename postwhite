@@ -3,14 +3,13 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-  version=1.14
-# Last updated: 28 Nov 2015
+	version="1.15"
+	lastupdated="29 Nov 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
 #
 # Requires spf-tools (https://github.com/jsarenik/spf-tools)
-# Requires ipcalc (http://jodies.de/ipcalc)
 
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
@@ -19,9 +18,6 @@
 
 # spf-tools location (REQUIRED)
 spftoolspath=/usr/local/bin/spf-tools
-
-# ipcalc location (REQUIRED)
-ipcalc=/usr/local/bin/postwhite/ipcalc/ipcalc
 
 # Do this to invalid IPv4 addresses and CIDRs (remove / fix / keep)
 badip4=remove
@@ -91,7 +87,31 @@ tmp4=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 		exit 1
 	fi
 
-# Functions we'll need later
+# Create IPv4 normalize function
+ip2int() {
+    local a b c d
+    { IFS=. read a b c d; } <<< $1
+    echo $(((((((a << 8) | b) << 8) | c) << 8) | d))
+}
+
+int2ip() {
+    local ui32=$1; shift
+    local ip n
+    for n in 1 2 3 4; do
+        ip=$((ui32 & 0xff))${ip:+.}$ip
+        ui32=$((ui32 >> 8))
+    done
+    echo $ip
+}
+
+network() {
+    local ip netmask;
+    { IFS="/" read ip netmask; } <<< $1
+    local addr=$(ip2int $ip);
+    local mask=$((0xffffffff << (32 -$netmask)));
+    echo $(int2ip $((addr & mask)))/$netmask
+}
+
 function normalize_ipv4() {
 	# split by ":"
 	local array=(${ip/:/ });
@@ -100,7 +120,7 @@ function normalize_ipv4() {
 		if [[ ${array[1]} == *"/"32 ]] ; then
 			IP=${array[1]}
 		elif [[ ${array[1]} == *"/"* ]] ; then
-			IP=$($ipcalc -b "${array[1]}" | awk '/^Network/ {print $2}');
+			IP=$(network ${array[1]});
 		else
 			IP=${array[1]}
 		fi
@@ -110,10 +130,12 @@ function normalize_ipv4() {
 	echo "$IP"
 }
 
+# Create host query function
 function query_host() {
 	"${spftoolspath}"/despf.sh "$1" >> "${tmp1}"
 }
 
+# Create progress dots function
 function show_dots() {
 	while ps |grep $1 &>/dev/null; do
        echo -n "."
@@ -124,7 +146,7 @@ function show_dots() {
 
 # Let's DO this!
 
-echo -e "\nStarting Postwhite v$version!\n"
+echo -e "\nStarting Postwhite v$version ($lastupdated)\n"
 
 # Query selected mailers
 echo -e "Recursively querying SPF records of selected mailers...\n"
@@ -174,7 +196,7 @@ if [ "$zoho" == "yes" ]; then
 fi
 
 if [ "$facebook" == "yes" ]; then
-	host=facebookmail.com
+	host=facebook.com
 	$(query_host "$host");
 fi
 
@@ -219,11 +241,7 @@ if [ "$amazon" == "yes" ]; then
 fi
 
 if [ "$ebay" == "yes" ]; then
-	host=s._spf.ebay.com
-	$(query_host "$host");
-	host=c._spf.ebay.com
-	$(query_host "$host");
-	host=p._spf.ebay.com
+	host=ebay.com
 	$(query_host "$host");
 fi
 

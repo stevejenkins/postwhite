@@ -9,13 +9,10 @@ This allows Postscreen to save time and resources by immediately handing off con
 Note this does *not* whitelist any email messages from these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
 
 # Requirements
-Postwhite runs as a **Bash** script and relies on two additional scripts to function properly:
-
-* **despf.sh** from the  <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> suite to recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
-* **<a target="_blank" href="http://jodies.de/ipcalc">ipcalc</a>** to validate IPv4 addresses and CIDR ranges. ipcalc has been stable since 2006, so the final version of ipcalc is included in the Postwhite repo to make things easy. The default path is set in ```postwhite```, but feel free to store it wherever you like and update the path.
+Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
 
 # Usage
-Once you have spf-tools and ipcalc available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, 
+Once you have spf-tools available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, 
 set a weekly cron job to pick up any new hosts in the mailers' SPF records, such as this:
 
     @weekly /usr/local/bin/postwhite/postwhite > /dev/null 2>&1 #Update Postscreen Whitelists
@@ -49,12 +46,12 @@ You can also choose how to handle malformed or invalid CIDR ranges that appear i
 * **keep** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough, cough).
 * **fix** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
 
-Other options include changing the whitelist's filename, Postfix location, spf-tools path location, ipcalc location, and whether or not to automatically reload Postfix.
+Other options include changing the whitelist's filename, Postfix location, spf-tools path location, and whether or not to automatically reload Postfix.
 
 # Credits
 * Special thanks to Mike Miller for his 2013 <a target="_blank" href="https://archive.mgm51.com/sources/gwhitelist.html">gwhitelist script</a> that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
 * Thanks to Jan Sarenik (author of <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a>).
-* Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for suggesting I could use ipcalc to help validate CIDRs, and for providing a patch to help get me started.
+* Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for patches and contributions to Postwhite, include internal code to validate CIDRs.
 * Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, which really isn't my bag.
 
 # More Info
