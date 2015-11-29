@@ -29,7 +29,7 @@ Add the whitelist's filename to the ```postscreen_access_list``` option in your 
 Then do a manual ```postfix reload``` or re-run ```./postwhite``` to build a fresh whitelist and automatically reload Postfix.
 
 # Options
-By default, webmailers and social networks are turned ON, meaning they will be included in the whitelist. Bulk senders are turned off by default, but you can toggle any mailer by changing them to "yes" or "no", like this:
+By default, most mailers are set to "yes," meaning they will be included in the whitelist. You can include or exclude any mailer by changing them to "yes" or "no", like this:
 
     google=yes
     microsoft=no
@@ -38,7 +38,7 @@ By default, webmailers and social networks are turned ON, meaning they will be i
 
 In the above example, Postwhite will only include IP addresses from Google and Facebook in the generated whitelist. Additional mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
 
-By default, the option to simplify (remove) invididual IP addresses that are already included in CIDR ranges (handled by the SPT-Tools ```simplify.sh``` script) is set to **no**. Turning this feature on when building a whitelist for more than just a few mailers dramatically adds to the processing time required to run Postwhite. Feel free to turn it on to see how it affects the amount of time required to build your whitelist, but if you're whitelisting more than just 3 or 4 mailers, you'll probably want to turn it to "no" again. Having a handful of individual IP addresses in your whitelist that might be redundantly covered by CIDR ranges won't have any appreciable impact on Postscreen's performance.
+By default, the option to simplify (remove) invididual IP addresses that are already included in CIDR ranges (handled by the SPT-Tools ```simplify.sh``` script) is set to **no**. Turning this feature on when building a whitelist for more than just a few mailers *dramatically* adds to the processing time required to run Postwhite. Feel free to turn it on to see how it affects the amount of time required to build your whitelist, but if you're whitelisting more than just 3 or 4 mailers, you'll probably want to turn it to "no" again. Having a handful of individual IP addresses in your whitelist that might be redundantly covered by CIDR ranges won't have any appreciable impact on Postscreen's performance.
 
 You can also choose how to handle malformed or invalid CIDR ranges that appear in the mailers' SPF records (which happens more often than it should). The options are:
 
