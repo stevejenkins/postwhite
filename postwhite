@@ -3,15 +3,17 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.16"
-	lastupdated="29 Nov 2015"
+	version="1.17"
+	lastupdated="30 Nov 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
 #
 # Requires spf-tools (https://github.com/jsarenik/spf-tools)
+# Please update your copy of spf-tools whenever you update Postwhite
 
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
+# Thanks to Jan Sarenik for SPF-Tools
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
 
 # USER-DEFINABLE OPTIONS
@@ -266,6 +268,8 @@ fi
 
 if [ "$exacttarget" == "yes" ]; then
 	host=exacttarget.com
+	$(query_host "$host");
+	host=cust-spf.exacttarget.com
 	$(query_host "$host");
 fi
 

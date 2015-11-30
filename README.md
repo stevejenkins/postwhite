@@ -2,11 +2,13 @@
 A script for generating a Postscreen whitelist based on large (and presumably trustworthy) senders' SPF records.
 
 # Why Postwhite?
-Postwhite uses the published SPF records of large webmailers (like Gmail and Hotmail) and social networks that send lots of notifications (like Twitter and Facebook) to generate a list of outbound mailer IP addresses and CIDR ranges to create a whitelist for Postscreen.
+Postwhite uses the published SPF records from domains of known webmailers, social networks, ecommerce providers, and compliant bulk senders to generate a list of outbound mailer IP addresses and CIDR ranges to create a whitelist for Postscreen.
 
 This allows Postscreen to save time and resources by immediately handing off connections from these hosts (which we can somewhat safely presume are properly configured) to Postfix's smtpd process for further action.
 
 Note this does *not* whitelist any email messages from these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
+
+If all of the mailers are selected when Postwhite runs, the resulting whitelist includes over 500 outbound mail servers, all of which  have a very high probability of being properly configured.
 
 # Requirements
 Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
