@@ -20,11 +20,11 @@
 spftoolspath=/usr/local/bin/spf-tools
 
 # Do this to invalid IPv4 addresses and CIDRs (remove / fix / keep)
-badip4=remove
+invalidip4=remove
 
-# Simplify (remove) IP addresses from whitelist that are already covered by CIDRs
-# WARNING: if you have many mailers selected, enabling this option can dramatically
-# increase the time Postwhite takes to run. Try it once, then come back and turn it off. :)
+# Simplify (remove) IP addresses from the whitelist that are already covered by CIDRs
+# WARNING: Enabling this option can dramatically increase the time Postwhite takes to
+# run if you have many mailers selected. Try it once, then come back and turn it off. :)
 simplify=no
 
 # Paths
@@ -60,6 +60,7 @@ twitter=yes
 amazon=no
 craigslist=yes
 ebay=yes
+paypal=yes
 
 # Bulk Senders
 constantcontact=yes
@@ -246,6 +247,11 @@ if [ "$ebay" == "yes" ]; then
 	$(query_host "$host");
 fi
 
+if [ "$paypal" == "yes" ]; then
+	host=paypal.com
+	$(query_host "$host");
+fi
+
 if [ "$sendgrid" == "yes" ]; then
 	host=sendgrid.com
 	$(query_host "$host");
@@ -281,7 +287,8 @@ fi
 # If enabled, simplify (remove) any individual IPs already included in CIDR ranges (disabled by default)
 if [ "$simplify" == "yes" ]; then
 	echo -e ""
-	echo -n "Simplifying IP addresses already included in CIDR ranges. This can take a LONG time if you have many mailers selected. Please be patient..."
+	echo -e "Simplifying IP addresses already included in CIDR ranges. These calculations\n"
+	echo -n "can take a LONG time if you have many mailers selected. Please be patient..."
 	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots $!
 	echo -e "\nIP address simplification complete."
@@ -292,7 +299,7 @@ fi
 # Check for invalid IPv4 CIDRs, then format the whitelist
 
 # If enabled, fix invalid CIDRs
-if [ "$badip4" == "fix" ] ; then
+if [ "$invalidip4" == "fix" ] ; then
 	echo -e ""
 	echo -n "Fixing invalid IPv4 CIDRs..."
 	for ip in $(cat  "${tmp2}") ; do
@@ -304,7 +311,7 @@ if [ "$badip4" == "fix" ] ; then
 	show_dots $!
 
 # If enabled, remove invalid CIDRs
-elif [ "$badip4" == "remove" ] ; then
+elif [ "$invalidip4" == "remove" ] ; then
 	echo -e ""
 	echo -n "Removing invalid IPv4 CIDRs..."
 	for ip in $(cat "${tmp2}") ; do
@@ -320,7 +327,7 @@ elif [ "$badip4" == "remove" ] ; then
 	show_dots $!
 
 # If enabled, keep invalid CIDRs
-elif [ "$badip4" == "keep" ] ; then
+elif [ "$invalidip4" == "keep" ] ; then
 	echo -e "\nKeeping invalid IPv4 CIDRs..."
 	printf "%s\n" | grep "^ip" "${tmp2}" | cut -c5- | sed s/$/'	permit'/ > "${tmp3}"
 fi
