@@ -293,8 +293,8 @@ if [ "$simplify" == "yes" ]; then
 	echo -e ""
 	echo -e "Simplifying IP addresses already included in CIDR ranges. These calculations\n"
 	echo -n "can take a LONG time if you have many mailers selected. Please be patient..."
-	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}" &
-	show_dots $!
+	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}"
+#	show_dots $!
 	echo -e "\nIP address simplification complete."
 else
 	cat "${tmp1}" > "${tmp2}"
@@ -311,8 +311,8 @@ if [ "$invalidip4" == "fix" ] ; then
 		if [ -n "$ip" ] ; then
 			echo -ne "$ip\tpermit\n"
 		fi
-	done >> "${tmp3}" &
-	show_dots $!
+	done >> "${tmp3}"
+#	show_dots $!
 
 # If enabled, remove invalid CIDRs
 elif [ "$invalidip4" == "remove" ] ; then
@@ -327,8 +327,8 @@ elif [ "$invalidip4" == "remove" ] ; then
 		elif [ "$iptype" == "ip6" ] ; then
 			echo -ne "$ip\tpermit\n"
 		fi
-	done >> "${tmp3}" &
-	show_dots $!
+	done >> "${tmp3}"
+#	show_dots $!
 
 # If enabled, keep invalid CIDRs
 elif [ "$invalidip4" == "keep" ] ; then
