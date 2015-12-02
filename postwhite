@@ -3,14 +3,17 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.20"
+	version="1.21"
 	lastupdated="02 Dec 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
 #
-# Requires spf-tools (https://github.com/jsarenik/spf-tools)
+# Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
+# despf.sh required >= 29 Nov 2015
+# simplify.sh required >= 07 Jul 2015
+# normalize.sh required >= 02 Dec 2015
 
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jan Sarenik for SPF-Tools
@@ -109,9 +112,9 @@ int2ip() {
 }
 
 network() {
-    local ip netmask;
-    { IFS="/" read ip netmask; } <<< $1
-    local addr=$(ip2int $ip);
+    local ia netmask;
+    { IFS="/" read ia netmask; } <<< $1
+    local addr=$(ip2int $ia);
     local mask=$((0xffffffff << (32 -$netmask)));
     printf $(int2ip $((addr & mask)))/$netmask
 }

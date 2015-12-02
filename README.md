@@ -13,6 +13,9 @@ If all of the mailers are selected when Postwhite runs, the resulting whitelist 
 # Requirements
 Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
 
+**Please update SPF-Tools whenever you update Postwhite, as both are under continuous development, and sometimes new features of Postwhite depend upon an updated version of SPF-Tools. The 
+minimum version number of SPF-Tools required is included near the top of the ```postwhite``` script.**
+
 # Usage
 Once you have spf-tools available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, set a daily cron job to pick up any new hosts in the mailers' SPF records, such as this:
 
