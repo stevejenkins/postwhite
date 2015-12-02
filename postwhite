@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.17"
-	lastupdated="30 Nov 2015"
+	version="1.18"
+	lastupdated="01 Dec 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -141,8 +141,8 @@ function query_host() {
 
 # Create progress dots function
 function show_dots() {
-	while ps |grep $1 &>/dev/null; do
-       echo -n "."
+	while ps $1 >/dev/null ; do
+       printf "."
        sleep 1
 	done
 	echo -e " "
@@ -292,7 +292,7 @@ fi
 if [ "$simplify" == "yes" ]; then
 	echo -e ""
 	echo -e "Simplifying IP addresses already included in CIDR ranges. These calculations\n"
-	echo -n "can take a LONG time if you have many mailers selected. Please be patient..."
+	printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots $!
 	echo -e "\nIP address simplification complete."
@@ -305,7 +305,7 @@ fi
 # If enabled, fix invalid CIDRs
 if [ "$invalidip4" == "fix" ] ; then
 	echo -e ""
-	echo -n "Fixing invalid IPv4 CIDRs..."
+	printf "Fixing invalid IPv4 CIDRs..."
 	for ip in $(cat  "${tmp2}") ; do
 		ip=$(normalize_ipv4  "$ip");
 		if [ -n "$ip" ] ; then
@@ -317,7 +317,7 @@ if [ "$invalidip4" == "fix" ] ; then
 # If enabled, remove invalid CIDRs
 elif [ "$invalidip4" == "remove" ] ; then
 	echo -e ""
-	echo -n "Removing invalid IPv4 CIDRs..."
+	printf "Removing invalid IPv4 CIDRs..."
 	for ip in $(cat "${tmp2}") ; do
 		iptype=$( echo "$ip" | cut -d\: -f1 )
 		origip=$( echo "$ip" | cut -d\: -f2 )
