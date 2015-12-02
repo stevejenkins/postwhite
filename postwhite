@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.19"
-	lastupdated="01 Dec 2015"
+	version="1.20"
+	lastupdated="02 Dec 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -87,7 +87,7 @@ tmp3=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp4=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp5=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 	if [ $? -ne 0 ]; then
-		printf "$0: Can't create temp files, exiting..."
+		printf "$0: Can't create temp files, exiting...\n"
 		exit 1
 	fi
 
@@ -145,7 +145,7 @@ function show_dots() {
 	printf "."
 	sleep 1
 	done
-	printf " "
+	printf "\n"
 }
 
 # Let's DO this!
@@ -290,12 +290,11 @@ fi
 
 # If enabled, simplify (remove) any individual IPs already included in CIDR ranges (disabled by default)
 if [ "$simplify" == "yes" ]; then
-	printf ""
-	printf "Simplifying IP addresses already included in CIDR ranges. These calculations\n"
+	printf "\nSimplifying IP addresses already included in CIDR ranges. These calculations\n"
 	printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	cat "${tmp1}" | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots $!
-	printf "\nIP address simplification complete."
+	printf "\nIP address simplification complete.\n"
 else
 	cat "${tmp1}" > "${tmp2}"
 fi
@@ -304,7 +303,6 @@ fi
 
 # If enabled, fix invalid CIDRs
 if [ "$invalidip4" == "fix" ] ; then
-	printf ""
 	printf "\nFixing invalid IPv4 CIDRs..."
 	for ip in $(cat  "${tmp2}") ; do
 		ip=$(normalize_ipv4  "$ip");
@@ -316,7 +314,6 @@ if [ "$invalidip4" == "fix" ] ; then
 
 # If enabled, remove invalid CIDRs
 elif [ "$invalidip4" == "remove" ] ; then
-	printf ""
 	printf "\nRemoving invalid IPv4 CIDRs..."
 	for ip in $(cat "${tmp2}") ; do
 		iptype=$( printf "$ip" | cut -d\: -f1 )
@@ -357,10 +354,10 @@ test -e "${tmp5}" && rm "${tmp5}"
 
 # Reload Postfix to pick up changes in whitelist
 if [ "$reloadpostfix" == "yes" ]; then
-printf 'Reloading Postfix configuration to refresh whitelist rules...\n'
+printf '\nReloading Postfix configuration to refresh whitelist rules...\n'
 	${postfixbinarypath}/postfix reload
 fi
 
-printf '\nDone!'
+printf '\nDone!\n'
 
 exit
