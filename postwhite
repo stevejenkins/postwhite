@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.21"
-	lastupdated="02 Dec 2015"
+	version="1.22"
+	lastupdated="13 Dec 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -73,9 +73,12 @@ exacttarget=yes
 icontact=yes
 mailchimp=yes
 sendgrid=yes
+mailgun=yes
+mailjet=yes
 
 # Misc
 zendesk=yes
+github=yes
 
 # NO NEED TO EDIT PAST THIS LINE
 
@@ -286,8 +289,23 @@ if [ "$icontact" == "yes" ]; then
 	$(query_host "$host");
 fi
 
+if [ "$mailgun" == "yes" ]; then
+	host=mailgun.com
+	$(query_host "$host");
+fi
+
+if [ "$mailjet" == "yes" ]; then
+	host=mailjet.com
+	$(query_host "$host");
+fi
+
 if [ "$zendesk" == "yes" ]; then
 	host=zendesk.com
+	$(query_host "$host");
+fi
+
+if [ "$github" == "yes" ]; then
+	host=github.com
 	$(query_host "$host");
 fi
 
