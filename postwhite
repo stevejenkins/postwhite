@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.22"
-	lastupdated="13 Dec 2015"
+	version="1.23"
+	lastupdated="24 Dec 2015"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -13,7 +13,6 @@
 # Please update your copy of spf-tools whenever you update Postwhite
 # despf.sh required >= 29 Nov 2015
 # simplify.sh required >= 07 Jul 2015
-# normalize.sh required >= 02 Dec 2015
 
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jan Sarenik for SPF-Tools
@@ -70,11 +69,12 @@ paypal=yes
 # Bulk Senders
 constantcontact=yes
 exacttarget=yes
+fishbowl=yes
 icontact=yes
 mailchimp=yes
-sendgrid=yes
 mailgun=yes
 mailjet=yes
+sendgrid=yes
 
 # Misc
 zendesk=yes
@@ -291,6 +291,13 @@ fi
 
 if [ "$mailgun" == "yes" ]; then
 	host=mailgun.com
+	$(query_host "$host");
+fi
+
+if [ "$fishbowl" == "yes" ]; then
+	host=fishbowl.com
+	$(query_host "$host");
+	host=fbmta.com
 	$(query_host "$host");
 fi
 
