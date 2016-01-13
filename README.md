@@ -33,7 +33,7 @@ Add the whitelist's filename to the ```postscreen_access_list``` option in your 
 Then do a manual ```postfix reload``` or re-run ```./postwhite``` to build a fresh whitelist and automatically reload Postfix.
 
 # Options
-To make managing whitelisted hosts eaiser, Postwhite splits trusted mailers into five categories: webmailers, ecommerce, social networks, bulk senders, and other miscellaneous hosts. Trusted webmailers, for example, are listed in the webmail_hosts option, separated by a single space:
+To make managing whitelisted hosts easier, Postwhite splits trusted mailers into five categories: webmailers, ecommerce, social networks, bulk senders, and other miscellaneous hosts. Trusted webmailers, for example, are listed in the webmail_hosts option, separated by a single space:
 
     webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com"
 
