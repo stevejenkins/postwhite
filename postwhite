@@ -3,16 +3,14 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.23"
-	lastupdated="24 Dec 2015"
+	version="1.30"
+	lastupdated="13 Jan 2016"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
 #
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
-# despf.sh required >= 29 Nov 2015
-# simplify.sh required >= 07 Jul 2015
 
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jan Sarenik for SPF-Tools
@@ -39,46 +37,16 @@ whitelist=postscreen_spf_whitelist.cidr
 # Reload Postfix Automatically when done?
 reloadpostfix=yes
 
-# Choose "yes" or "no" to select from the following senders:
+# Groups of hosts to be queried (edit to your liking)
+webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com"
 
-# Webmail Providers
-aol=yes
-google=yes
-gmx=yes
-inbox=yes
-mac=yes
-mail=yes
-microsoft=yes
-zoho=yes
+social_hosts="facebook.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
 
-#Social Networks
-facebook=yes
-instagram=yes
-linkedin=yes
-pinterest=yes
-reddit=yes
-tumblr=yes
-twitter=yes
+commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
 
-# Ecommerce
-amazon=no
-craigslist=yes
-ebay=yes
-paypal=yes
+bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com"
 
-# Bulk Senders
-constantcontact=yes
-exacttarget=yes
-fishbowl=yes
-icontact=yes
-mailchimp=yes
-mailgun=yes
-mailjet=yes
-sendgrid=yes
-
-# Misc
-zendesk=yes
-github=yes
+misc_hosts="zendesk.com github.com"
 
 # NO NEED TO EDIT PAST THIS LINE
 
@@ -158,163 +126,39 @@ function show_dots() {
 
 printf "\nStarting Postwhite v$version ($lastupdated)\n"
 
-# Query selected mailers
 printf "\nRecursively querying SPF records of selected mailers...\n"
 
-if [ "$google" == "yes" ]; then
-	host=google.com
-	$(query_host "$host");
-fi
+# Query selected mailers
 
-if [ "$microsoft" == "yes" ]; then
-	host=microsoft.com
-	$(query_host "$host");
-	host=outlook.com
-	$(query_host "$host");
-	host=hotmail.com
-	$(query_host "$host");
-fi
+printf "\nQuerying webmail hosts...\n"
 
-if [ "$aol" == "yes" ]; then
-	host=aol.com
-	$(query_host "$host");
-fi
+for h in ${webmail_hosts}; do
+    $(query_host "${h}")
+done
 
-if [ "$gmx" == "yes" ]; then
-		host=gmx.com
-	$(query_host "$host");
-fi
+printf "\nQuerying social network hosts...\n"
 
-if [ "$mac" == "yes" ]; then
-	host=icloud.com
-	$(query_host "$host");
-fi
+for h in ${social_hosts}; do
+    $(query_host "${h}")
+done
 
-if [ "$mail" == "yes" ]; then
-	host=mail.com
-	$(query_host "$host");
-fi
+printf "\nQuerying ecommerce hosts...\n"
 
-if [ "$inbox" == "yes" ]; then
-	host=inbox.com
-	$(query_host "$host");
-fi
+for h in ${commerce_hosts}; do
+    $(query_host "${h}")
+done
 
-if [ "$zoho" == "yes" ]; then
-	host=zoho.com
-	$(query_host "$host");
-fi
+printf "\nQuerying bulk mail hosts...\n"
 
-if [ "$facebook" == "yes" ]; then
-	host=facebook.com
-	$(query_host "$host");
-fi
+for h in ${bulk_hosts}; do
+    $(query_host "${h}")
+done
 
-if [ "$twitter" == "yes" ]; then
-	host=twitter.com
-	$(query_host "$host");
-fi
+printf "\nQuerying other hosts...\n"
 
-if [ "$pinterest" == "yes" ]; then
-	host=pinterest.com
-	$(query_host "$host");
-fi
-
-if [ "$instagram" == "yes" ]; then
-	host=instagram.com
-	$(query_host "$host");
-fi
-
-if [ "$tumblr" == "yes" ]; then
-	host=tumblr.com
-	$(query_host "$host");
-fi
-
-if [ "$reddit" == "yes" ]; then
-	host=reddit.com
-	$(query_host "$host");
-fi
-
-if [ "$linkedin" == "yes" ]; then
-	host=linkedin.com
-	$(query_host "$host");
-fi
-
-if [ "$craigslist" == "yes" ]; then
-	host=craigslist.org
-	$(query_host "$host");
-fi
-
-if [ "$amazon" == "yes" ]; then
-	host=amazon.com
-	$(query_host "$host");
-fi
-
-if [ "$ebay" == "yes" ]; then
-	host=ebay.com
-	$(query_host "$host");
-fi
-
-if [ "$paypal" == "yes" ]; then
-	host=paypal.com
-	$(query_host "$host");
-fi
-
-if [ "$sendgrid" == "yes" ]; then
-	host=sendgrid.com
-	$(query_host "$host");
-	host=sendgrid.net
-	$(query_host "$host");
-fi
-
-if [ "$mailchimp" == "yes" ]; then
-	host=mailchimp.com
-	$(query_host "$host");
-fi
-
-if [ "$exacttarget" == "yes" ]; then
-	host=exacttarget.com
-	$(query_host "$host");
-	host=cust-spf.exacttarget.com
-	$(query_host "$host");
-fi
-
-if [ "$constantcontact" == "yes" ]; then
-	host=constantcontact.com
-	$(query_host "$host");
-fi
-
-if [ "$icontact" == "yes" ]; then
-	host=icontact.com
-	$(query_host "$host");
-fi
-
-if [ "$mailgun" == "yes" ]; then
-	host=mailgun.com
-	$(query_host "$host");
-fi
-
-if [ "$fishbowl" == "yes" ]; then
-	host=fishbowl.com
-	$(query_host "$host");
-	host=fbmta.com
-	$(query_host "$host");
-fi
-
-if [ "$mailjet" == "yes" ]; then
-	host=mailjet.com
-	$(query_host "$host");
-fi
-
-if [ "$zendesk" == "yes" ]; then
-	host=zendesk.com
-	$(query_host "$host");
-fi
-
-if [ "$github" == "yes" ]; then
-	host=github.com
-	$(query_host "$host");
-fi
+for h in ${misc_hosts}; do
+    $(query_host "${h}")
+done
 
 # If enabled, simplify (remove) any individual IPs already included in CIDR ranges (disabled by default)
 if [ "$simplify" == "yes" ]; then
