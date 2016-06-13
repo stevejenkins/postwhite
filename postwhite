@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.32"
-	lastupdated="31 May 2016"
+	version="1.33"
+	lastupdated="13 June 2016"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -38,7 +38,7 @@ whitelist=postscreen_spf_whitelist.cidr
 reloadpostfix=yes
 
 # Groups of hosts to be queried (edit to your liking)
-webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com"
+webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com"
 
 social_hosts="facebook.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
 
