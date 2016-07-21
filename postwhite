@@ -19,7 +19,7 @@
 # USER-DEFINABLE OPTIONS
 
 # Do you also want to build a blacklist?
-enable_blacklist=yes
+enable_blacklist=no
 
 # spf-tools location (REQUIRED)
 spftoolspath=/usr/local/bin/spf-tools
