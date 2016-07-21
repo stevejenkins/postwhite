@@ -26,11 +26,12 @@ Once you have spf-tools available on your system, run ```./postwhite``` from the
 
 When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then optionally reload Postfix to pick up any changes.
 
-Add the whitelist's filename to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
+Add the filename of your whitelist (and optionally your blacklist) to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
 
     postscreen_access_list = permit_mynetworks,
     ...
             cidr:/etc/postfix/postscreen_spf_whitelist.cidr,
+            cidr:/etc/postfix/postscreen_spf_blacklist.cidr,
     ...
 
 Then do a manual ```postfix reload``` or re-run ```./postwhite``` to build a fresh whitelist and automatically reload Postfix.
