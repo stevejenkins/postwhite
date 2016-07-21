@@ -1,14 +1,17 @@
-# Postwhite - Automatic Postcreen Whitelist Generator
-A script for generating a Postscreen whitelist based on large (and presumably trustworthy) senders' SPF records.
+# Postwhite - Automatic Postcreen Whitelist & Blacklist Generator
+A script for generating a Postscreen whitelist (and optionally a blacklist) based on large and presumably trustworthy senders' SPF records.
 
 # Why Postwhite?
-Postwhite uses the published SPF records from domains of known webmailers, social networks, ecommerce providers, and compliant bulk senders to generate a list of outbound mailer IP addresses and CIDR ranges to create a whitelist for Postscreen.
+Postwhite uses the published SPF records from domains of known webmailers, social networks, ecommerce providers, and compliant bulk senders to generate a list of outbound mailer IP addresses and CIDR ranges to create a whitelist (and optionally a blacklist) for Postfix's Postscreen.
 
-This allows Postscreen to save time and resources by immediately handing off connections from these hosts (which we can somewhat safely presume are properly configured) to Postfix's smtpd process for further action.
+This allows Postscreen to save time and resources by immediately handing off whitelisted connections from these hosts (which we can somewhat safely presume are properly configured) to Postfix's smtpd process for further action. Blacklisted hosts are rejected before they reach Postfix's smtpd process.
 
-Note this does *not* whitelist any email messages from these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders.
+Note this does *not* whitelist (or blacklist) email messages from any of these hosts. A whitelist for Postscreen (which is merely the first line of Postfix's defense) merely allows listed hosts to connect to Postfix without further tests to prove they are properly configured and/or legitimate senders. A Postscreen blacklist does nothing but reject the connection based on the blacklisted host's IP.
 
-If all of the mailers are selected when Postwhite runs, the resulting whitelist includes over 500 outbound mail servers, all of which  have a very high probability of being properly configured.
+If all of the whitelist mailers are selected when Postwhite runs, the resulting whitelist includes over 500 outbound mail servers, all of which  have a very high probability of being properly configured.
+
+# Warning about Blacklisting
+By default, Postwhite has blacklisting turned off. Most users will not need to ever turn it on, but it's there if you *really* believe you need it. If you choose to enable it, make sure you understand the implications of blacklisting IP addresses based on their hostnames and associated mailers, and re-run Postwhite often via cron to make sure you're not inadvertently blocking legitimate senders.
 
 # Requirements
 Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin``` on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
@@ -41,6 +44,8 @@ The categories don't really matter, and exist only to make organizing your list 
 
 Additional mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
 
+To enable blacklisting, set ```enable_blacklist=yes``` and then list blacklisted hosts in ```blacklist_hosts```. Please refer to the blacklisting warning above. Blacklisting is not the primary purpose of Postwhite, and most users will never need to turn it on.
+
 By default, the option to simplify (remove) invididual IP addresses that are already included in CIDR ranges (handled by the SPT-Tools ```simplify.sh``` script) is set to **no**. Turning this feature on when building a whitelist for more than just a few mailers *dramatically* adds to the processing time required to run Postwhite. Feel free to turn it on to see how it affects the amount of time required to build your whitelist, but if you're whitelisting more than just 3 or 4 mailers, you'll probably want to turn it to "no" again. Having a handful of individual IP addresses in your whitelist that might be redundantly covered by CIDR ranges won't have any appreciable impact on Postscreen's performance.
 
 You can also choose how to handle malformed or invalid CIDR ranges that appear in the mailers' SPF records (which happens more often than it should). The options are:
@@ -49,7 +54,7 @@ You can also choose how to handle malformed or invalid CIDR ranges that appear i
 * **keep** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough, cough).
 * **fix** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
 
-Other options include changing the whitelist's filename, Postfix location, spf-tools path location, and whether or not to automatically reload Postfix.
+Other options include changing the filenames for your whitelist & blacklist, Postfix location, spf-tools path location, and whether or not to automatically reload Postfix after you've generated a new list.
 
 # Credits
 * Special thanks to Mike Miller for his 2013 <a target="_blank" href="https://archive.mgm51.com/sources/gwhitelist.html">gwhitelist script</a> that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.
