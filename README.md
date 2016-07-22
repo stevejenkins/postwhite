@@ -34,6 +34,8 @@ Add the filename of your whitelist (and optionally your blacklist) to the ```pos
             cidr:/etc/postfix/postscreen_spf_blacklist.cidr,
     ...
 
+**IMPORTANT:** If you choose to enable blacklisting, list the blacklist file *after* the whitelist file in ```main.cf```, as shown above. If you misconfigure Postwhite and an IP address inadvertently finds its way onto both lists, the first entry "wins." Listing the whitelist file first in ```main.cf``` will assure that whitelisted hosts aren't blacklisted, even if they appear in the blacklist file. 
+
 Then do a manual ```postfix reload``` or re-run ```./postwhite``` to build a fresh whitelist and automatically reload Postfix.
 
 # Options
