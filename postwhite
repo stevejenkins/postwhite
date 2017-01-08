@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist / Blacklist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.35"
-	lastupdated="21 July 2016"
+	version="1.36"
+	lastupdated="07 January 2017"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
@@ -50,7 +50,7 @@ social_hosts="facebook.com twitter.com pinterest.com instagram.com tumblr.com re
 
 commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
 
-bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com"
+bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fbmta.com mailjet.com"
 
 misc_hosts="zendesk.com github.com"
 
@@ -316,10 +316,10 @@ if [ "$enable_blacklist" == "yes" ] ; then
 fi
 
 # Reload Postfix to pick up changes in whitelist
-if [ "$reloadpostfix" == "yes" ]; then
-printf '\nReloading Postfix configuration to refresh rules...\n'
-	${postfixbinarypath}/postfix reload
-fi
+#if [ "$reloadpostfix" == "yes" ]; then
+#printf '\nReloading Postfix configuration to refresh rules...\n'
+#	${postfixbinarypath}/postfix reload
+#fi
 
 printf '\nDone!\n'
 
