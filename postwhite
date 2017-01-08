@@ -316,10 +316,10 @@ if [ "$enable_blacklist" == "yes" ] ; then
 fi
 
 # Reload Postfix to pick up changes in whitelist
-#if [ "$reloadpostfix" == "yes" ]; then
-#printf '\nReloading Postfix configuration to refresh rules...\n'
-#	${postfixbinarypath}/postfix reload
-#fi
+if [ "$reloadpostfix" == "yes" ]; then
+printf '\nReloading Postfix configuration to refresh rules...\n'
+	${postfixbinarypath}/postfix reload
+fi
 
 printf '\nDone!\n'
 
