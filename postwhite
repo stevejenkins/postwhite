@@ -127,11 +127,11 @@ function normalize_ipv4() {
 
 # Create host query function
 function query_host() {
-	"${spftoolspath}"/despf.sh "$1" >> "${tmp1}"
+	"${spftoolspath}"/despf.sh "$1" | grep ^ip >> "${tmp1}"
 }
 
 function query_black_host() {
-	"${spftoolspath}"/despf.sh "$1" >> "${blktmp1}"
+	"${spftoolspath}"/despf.sh "$1" | grep ^ip >> "${blktmp1}"
 }
 
 # Create progress dots function
