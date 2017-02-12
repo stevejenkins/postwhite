@@ -20,11 +20,16 @@ Postwhite runs as a **Bash** script and relies on two scripts from the <a target
 minimum version number of SPF-Tools required is included near the top of the ```postwhite``` script.**
 
 # Usage
-Once you have spf-tools available on your system, run ```./postwhite``` from the command line. I recommend cloning the entire repo into ```/usr/local/bin/```. Once you're satisfied with its performance, set a daily cron job to pick up any new hosts in the mailers' SPF records, such as this:
+1. Make sure you have SPF-Toolson your system
+2. Move the ```postwhite.conf``` file to your `/etc/` directory
+3. Add any custom hosts in ```postwhite.conf```
+4. Run ```./postwhite``` from the command line.
+
+I recommend cloning both the SPF-Tools and the Postwhite repos into your ```/usr/local/bin/``` directory. Once you're satisfied with its performance, set a daily cron job to pick up any new hosts in the mailers' SPF records like this:
 
     @daily /usr/local/bin/postwhite/postwhite > /dev/null 2>&1 #Update Postscreen Whitelists
 
-When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then optionally reload Postfix to pick up any changes.
+When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then reload Postfix to pick up any changes.
 
 Add the filename of your whitelist (and optionally your blacklist) to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
 
@@ -39,25 +44,37 @@ Add the filename of your whitelist (and optionally your blacklist) to the ```pos
 Then do a manual ```postfix reload``` or re-run ```./postwhite``` to build a fresh whitelist and automatically reload Postfix.
 
 # Options
-To make managing whitelisted hosts easier, Postwhite splits trusted mailers into five categories: **webmailers**, **ecommerce**, **social networks**, **bulk senders**, and **other/miscellaneous** hosts. Trusted webmailers, for example, are listed in the ```webmail_hosts``` option, separated by a single space:
+Options for Postwhite are located in the ```postwhite.conf``` file. This file shoud be moved to your system's ```/etc/``` directory before running Postwhite for the first time.
 
-    webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com"
+## Custom Hosts
+By default, Postwhite includes a number of well-known (and presumably trustworthy) mailers in five categories:
 
-The categories don't really matter, and exist only to make organizing your list of trusted hosts easier. You can add and remove any host to or from any category you choose.
+* Webmailers
+* Ecommerce
+* Social Networks
+* Bulk Senders
+* Miscellaneous
 
-Additional mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
+To add your own additional custom hosts, add them to the ```custom_hosts``` section of ```/etc/postwhite.conf``` separated by a single space:
 
+    custom_hosts="aol.com google.com microsoft.com yahoo.com"
+
+Additional trusted mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
+
+## Blacklisting
 To enable blacklisting, set ```enable_blacklist=yes``` and then list blacklisted hosts in ```blacklist_hosts```. Please refer to the blacklisting warning above. Blacklisting is not the primary purpose of Postwhite, and most users will never need to turn it on.
 
+## Simplify
 By default, the option to simplify (remove) invididual IP addresses that are already included in CIDR ranges (handled by the SPT-Tools ```simplify.sh``` script) is set to **no**. Turning this feature on when building a whitelist for more than just a few mailers *dramatically* adds to the processing time required to run Postwhite. Feel free to turn it on to see how it affects the amount of time required to build your whitelist, but if you're whitelisting more than just 3 or 4 mailers, you'll probably want to turn it to "no" again. Having a handful of individual IP addresses in your whitelist that might be redundantly covered by CIDR ranges won't have any appreciable impact on Postscreen's performance.
 
+## Invalid hosts
 You can also choose how to handle malformed or invalid CIDR ranges that appear in the mailers' SPF records (which happens more often than it should). The options are:
 
 * **remove** - the default action, it removes the invalid CIDR range so it doesn't appear in the whitelist.
 * **keep** - this keeps the invalid CIDR range in the whitelist. Postfix will log a warning about ```non-null host address bits```, suggest the closest valid range with a matching prefix length, and harmlessly ignore the rule. Useful only if you want to see which mailers are less than careful about their SPF records (cough, cough, *Microsoft*, cough, cough).
 * **fix** - this option will change the invalid CIDR to the closest valid range (the same one suggested by Postfix, in fact) and include the corrected CIDR range in the whitelist.
 
-Other options include changing the filenames for your whitelist & blacklist, Postfix location, spf-tools path location, and whether or not to automatically reload Postfix after you've generated a new list.
+Other options in ```postwhite.conf``` include changing the filenames for your whitelist & blacklist, Postfix path, SPF-Tools path, and whether or not to automatically reload Postfix after you've generated a new list.
 
 # Credits
 * Special thanks to Mike Miller for his 2013 <a target="_blank" href="https://archive.mgm51.com/sources/gwhitelist.html">gwhitelist script</a> that initially got me tinkering with SPF-based Postscreen whitelists. The temp file creation and ```printf``` statement near the end of the Postwhite script are remnants of his original script.

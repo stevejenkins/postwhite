@@ -1,14 +1,19 @@
 #! /bin/bash
-#
-# Postwhite - Automatic Postcreen Whitelist / Blacklist Generator
-#
-# By Steve Jenkins (http://stevejenkins.com/)
-	version="1.38"
-	lastupdated="12 February 2017"
-#
-# Usage: place entire postwhite directory in /usr/local/bin then 
-# run ./postwhite
-#
+
+###################################################################
+# Postwhite - Automatic Postcreen Whitelist / Blacklist Generator #
+# https://github.com/stevejenkins/postwhite                       #
+###################################################################
+
+# By Steve Jenkins (https://www.stevejenkins.com/)
+
+version="2.0"
+lastupdated="12 February 2017"
+
+# Usage: 1) Place entire /postwhite directory in /usr/local/bin
+#	 2) Move postwhite.conf to /etc
+#	 3) Run ./postwhite
+
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
 
@@ -16,34 +21,16 @@
 # Thanks to Jan Sarenik for SPF-Tools
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
 
-# USER-DEFINABLE OPTIONS
+# USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
 
-# Do you also want to build a blacklist?
-enable_blacklist=no
+# NO NEED TO EDIT PAST THIS LINE
 
-# spf-tools location (REQUIRED)
-spftoolspath=/usr/local/bin/spf-tools
+#################################################################
 
-# Do this to invalid IPv4 addresses and CIDRs (remove / fix / keep)
-invalidip4=remove
+# DEFAULT HOSTS
+# CUSTOM HOSTS CAN BE ADDED IN /etc/postwhite.conf
 
-# Simplify (remove) IP addresses from the whitelist that are already covered by CIDRs
-# WARNING: Enabling this option can dramatically increase the time Postwhite takes to
-# run if you have many mailers selected. Try it once, then come back and turn it off. :)
-simplify=no
-
-# Paths
-postfixpath=/etc/postfix
-postfixbinarypath=/usr/sbin
-whitelist=postscreen_spf_whitelist.cidr
-blacklist=postscreen_spf_blacklist.cidr
-
-# Reload Postfix Automatically when done?
-reloadpostfix=yes
-
-# WHITELISTED HOSTS
-
-# Groups of hosts to be queried (edit to your liking)
+# Hosts to query
 webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com"
 
 social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
@@ -54,16 +41,22 @@ bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exa
 
 misc_hosts="zendesk.com github.com"
 
-# BLACKLISTED HOSTS
-
-blacklist_hosts=""
-
-# NO NEED TO EDIT PAST THIS LINE
-
-# abort on any error
+# Abort script on error
 set -e
 
+printf "Starting Postwhite v$version ($lastupdated)\n"
+
+# Read config file options
+if [ -s /etc/postwhite.conf ] ; then
+	printf "\nReading options from /etc/postwhite.conf...\n"
+	source /etc/postwhite.conf
+else
+	printf "\nCan't find /etc/postwhite.conf. Exiting.\n\n"
+	exit 1
+fi
+
 # Create temporary files
+printf "\nCreating temporary files...\n"
 tmpBase=$(basename "$0")
 tmp1=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp2=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
@@ -145,8 +138,6 @@ function show_dots() {
 
 # Let's DO this!
 
-printf "\nStarting Postwhite v$version ($lastupdated)\n"
-
 printf "\nRecursively querying SPF records of selected whitelist mailers...\n"
 
 # Query selected mailers
@@ -175,9 +166,15 @@ for h in ${bulk_hosts}; do
     $(query_host "${h}")
 done
 
-printf "\nQuerying other hosts...\n"
+printf "\nQuerying miscellaneous hosts...\n"
 
 for h in ${misc_hosts}; do
+    $(query_host "${h}")
+done
+
+printf "\nQuerying custom hosts...\n"
+          
+for h in ${custom_hosts}; do
     $(query_host "${h}")
 done
 
