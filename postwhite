@@ -3,8 +3,8 @@
 # Postwhite - Automatic Postcreen Whitelist / Blacklist Generator
 #
 # By Steve Jenkins (http://stevejenkins.com/)
-	version="1.37"
-	lastupdated="10 January 2017"
+	version="1.38"
+	lastupdated="12 February 2017"
 #
 # Usage: place entire postwhite directory in /usr/local/bin then 
 # run ./postwhite
