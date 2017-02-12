@@ -20,7 +20,7 @@ href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh**
 **Please update SPF-Tools whenever you update Postwhite, as both are under continuous development, and sometimes new features of Postwhite depend upon an updated version of SPF-Tools.**
 
 # Usage
-1. Make sure you have SPF-Tools on your system
+1. Make sure you have <a target="_blank"href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> on your system
 2. Move the ```postwhite.conf``` file to your `/etc/` directory
 3. Add any custom hosts in ```postwhite.conf```
 4. Run ```./postwhite``` from the command line.
