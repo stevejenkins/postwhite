@@ -46,7 +46,7 @@ reloadpostfix=yes
 # Groups of hosts to be queried (edit to your liking)
 webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com"
 
-social_hosts="facebook.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
+social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
 
 commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
 
