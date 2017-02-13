@@ -1,3 +1,4 @@
+# List of known Yahoo mailer IPs from https://help.yahoo.com/kb/SLN23997.html
 ip4:27.123.204.128/30
 ip4:27.123.204.132/31
 ip4:27.123.204.148/30
