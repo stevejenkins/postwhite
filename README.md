@@ -57,9 +57,12 @@ By default, Postwhite includes a number of well-known (and presumably trustworth
 
 To add your own additional custom hosts, add them to the ```custom_hosts``` section of ```/etc/postwhite.conf``` separated by a single space:
 
-    custom_hosts="aol.com google.com microsoft.com yahoo.com"
+    custom_hosts="aol.com google.com microsoft.com"
 
 Additional trusted mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
+
+## Yahoo Hosts
+As mentioned in the **Known Issues**, Yahoo's SPF record doesn't support queries to expose their netblocks, and therefore a dynamic list of Yahoo mailers can't be built. However, using the IP addresses listed at https://help.yahoo.com/kb/SLN23997.html, I manually created a ```yahoo_static_hosts.txt``` file which gets included in the list of trusted hosts by default. To disable these static Yahoo IP addresses from being included in your whitelist, set the ```include_yahoo``` configuration option in ```/etc/postwhite.conf``` to ```include_yahoo="no"```.
 
 ## Blacklisting
 To enable blacklisting, set ```enable_blacklist=yes``` and then list blacklisted hosts in ```blacklist_hosts```. Please refer to the blacklisting warning above. Blacklisting is not the primary purpose of Postwhite, and most users will never need to turn it on.
@@ -88,7 +91,7 @@ My blog post discussing how Postwhite came to be is here:
 http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
 
 # Known Issues
-* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. I'm currently working on a way to scrape those IPs and include them in the whitelist. If you have a suggestion for a more elegant solution, please create an issue and let me know!
+* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. A static version of this list is currently included by default when Postwhite builds its whitelist. But if you have a suggestion for a more elegant solution, please create an issue and let me know, or create a pull request.
 
 * I have no way of validating IPv6 CIDRs yet. For now, the script assumes all SPF-published IPv6 CIDRs are valid and includes them in the whitelist.
 
