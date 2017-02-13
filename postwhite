@@ -7,7 +7,7 @@
 
 # By Steve Jenkins (https://www.stevejenkins.com/)
 
-version="2.0"
+version="2.1"
 lastupdated="12 February 2017"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
@@ -178,6 +178,12 @@ for h in ${custom_hosts}; do
     $(query_host "${h}")
 done
 
+if [ "$include_yahoo" == "yes" ] ; then
+	printf "\nIncluding static Yahoo hosts...\n"
+
+	cat "${yahoo_static_hosts}" >> "${tmp1}"
+fi
+
 if [ "$enable_blacklist" == "yes" ] ; then
 	printf "\nQuerying blacklist hosts...\n"
 
@@ -212,7 +218,7 @@ fi
 # Check for invalid IPv4 CIDRs, then format the whitelist
 
 # If enabled, fix invalid CIDRs
-if [ "$invalidip4" == "fix" ] ; then
+if [ "$invalid_ip4" == "fix" ] ; then
 	printf "\nFixing invalid whitelist IPv4 CIDRs..."
 	for ip in $(cat  "${tmp2}") ; do
 		ip=$(normalize_ipv4  "$ip");
@@ -234,7 +240,7 @@ if [ "$invalidip4" == "fix" ] ; then
 	fi
 
 # If enabled, remove invalid CIDRs
-elif [ "$invalidip4" == "remove" ] ; then
+elif [ "$invalid_ip4" == "remove" ] ; then
 	printf "\nRemoving invalid IPv4 CIDRs from whitelist..."
 	for ip in $(cat "${tmp2}") ; do
 		iptype=$( printf "$ip" | cut -d\: -f1 )
@@ -264,7 +270,7 @@ elif [ "$invalidip4" == "remove" ] ; then
 	fi
 
 # If enabled, keep invalid CIDRs
-elif [ "$invalidip4" == "keep" ] ; then
+elif [ "$invalid_ip4" == "keep" ] ; then
 	printf "\nKeeping invalid whitelist IPv4 CIDRs...\n"
 	printf "%s\n" | grep "^ip" "${tmp2}" | cut -c5- | sed s/$/'	permit'/ > "${tmp3}"
 	if [ "$enable_blacklist" == "yes" ] ; then
@@ -313,7 +319,7 @@ if [ "$enable_blacklist" == "yes" ] ; then
 fi
 
 # Reload Postfix to pick up changes in whitelist
-if [ "$reloadpostfix" == "yes" ]; then
+if [ "$reload_postfix" == "yes" ]; then
 printf '\nReloading Postfix configuration to refresh rules...\n'
 	${postfixbinarypath}/postfix reload
 fi
