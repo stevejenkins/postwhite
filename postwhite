@@ -37,7 +37,7 @@ social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.
 
 commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
 
-bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com"
+bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com sparkpost.com"
 
 misc_hosts="zendesk.com github.com"
 
