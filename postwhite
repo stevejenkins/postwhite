@@ -7,8 +7,8 @@
 
 # By Steve Jenkins (https://www.stevejenkins.com/)
 
-version="2.2"
-lastupdated="2 March 2017"
+version="2.3"
+lastupdated="4 March 2017"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
 #	 2) Move postwhite.conf to /etc
@@ -42,7 +42,7 @@ bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exa
 misc_hosts="zendesk.com github.com"
 
 # Abort script on error (fyi: enabling will cause script to exit silently if mailer has no valid results)
-# set -e
+set -e
 
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
@@ -120,11 +120,11 @@ function normalize_ipv4() {
 
 # Create host query function
 function query_host() {
-	"${spftoolspath}"/despf.sh "$1" | grep -Ei ^ip >> "${tmp1}"
+	"${spftoolspath}"/despf.sh "$1" | (grep -Ei ^ip || true ) >> "${tmp1}"
 }
 
 function query_black_host() {
-	"${spftoolspath}"/despf.sh "$1" | grep -Ei ^ip >> "${blktmp1}"
+	"${spftoolspath}"/despf.sh "$1" | (grep -Ei ^ip || true ) >> "${blktmp1}"
 }
 
 # Create progress dots function
