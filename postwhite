@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 
 ###################################################################
 # Postwhite - Automatic Postcreen Whitelist / Blacklist Generator #
@@ -41,17 +41,29 @@ bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exa
 
 misc_hosts="zendesk.com github.com"
 
+permit_line_v4="%s\tpermit\n"
+reject_line_v4="%s\treject\n"
+
+permit_line_v6="${permit_line_v4}"
+reject_line_v6="${reject_line_v4}"
+
 # Abort script on error (fyi: enabling will cause script to exit silently if mailer has no valid results)
 set -e
 
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
-# Read config file options
-if [ -s /etc/postwhite.conf ] ; then
-	printf "\nReading options from /etc/postwhite.conf...\n"
-	source /etc/postwhite.conf
+if [ -n $2 ]; then
+	config_file="/etc/postwhite.conf"
 else
-	printf "\nCan't find /etc/postwhite.conf. Exiting.\n\n"
+	config_file="$2"
+fi
+
+# Read config file options
+if [ -s $config_file ] ; then
+	printf "\nReading options from %s...\n" "$config_file"
+	. "${config_file}"
+else
+	printf "\nCan't find %s. Exiting.\n\n" "$config_file"
 	exit 1
 fi
 
@@ -63,7 +75,7 @@ tmp2=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp3=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp4=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 tmp5=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
-if [ "$enable_blacklist" == "yes" ] ; then
+if [ "$enable_blacklist" = "yes" ] ; then
 	blktmp1=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 	blktmp2=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
 	blktmp3=$(mktemp -q /tmp/"${tmpBase}".XXXXXX)
@@ -77,58 +89,58 @@ fi
 
 # Create IPv4 normalize function
 ip2int() {
-    local a b c d
-    { IFS=. read a b c d; } <<< $1
-    printf $(((((((a << 8) | b) << 8) | c) << 8) | d))
+    echo "$1" | IFS=. read ip2int_a ip2int_b ip2int_c ip2int_d
+    printf $(((((((ip2int_a << 8) | ip2int_b) << 8) | ip2int_c) << 8) | ip2int_d))
 }
 
 int2ip() {
-    local ui32=$1; shift
-    local ip n
+    int2ip_ui32=$1; shift
     for n in 1 2 3 4; do
-        ip=$((ui32 & 0xff))${ip:+.}$ip
-        ui32=$((ui32 >> 8))
+        int2ip_ip=$((int2ip_ui32 & 0xff))${int2ip_ip:+.}$int2ip_ip
+        int2ip_ui32=$((int2ip_ui32 >> 8))
     done
-    printf $ip
+    printf "%s" "${int2ip_ip}"
 }
 
 network() {
-    local ia netmask;
-    { IFS="/" read ia netmask; } <<< $1
-    local addr=$(ip2int $ia);
-    local mask=$((0xffffffff << (32 -$netmask)));
-    printf $(int2ip $((addr & mask)))/$netmask
+    echo $1 | IFS="/" read network_ia network_netmask
+    network_addr=$(ip2int $network_ia);
+    network_mask=$((0xffffffff << (32 -$network_netmask)));
+    if [ $network_netmask -eq 32 ]; then
+        printf "%s" $(int2ip $((network_addr & network_mask)))
+    else
+        printf "%s/%s" $(int2ip $((network_addr & network_mask))) $network_netmask
+    fi
 }
 
-function normalize_ipv4() {
+normalize_ipv4() {
 	# split by ":"
-	local array=(${ip/:/ });
-	if [ "x${array[0]}" = "xip4" ] ; then
+	normalize_ipv4_ip_type=$( echo ${ip} | cut -s -d\: -f1)
+	normalize_ipv4_ip_value=$( echo ${ip} | cut -s -d\: -f2)
+	if [ "x${normalize_ipv4_ip_type}" = "xip4" ] ; then
 		# check if is a CIDR
-		if [[ ${array[1]} == *"/"32 ]] ; then
-			IP=${array[1]}
-		elif [[ ${array[1]} == *"/"* ]] ; then
-			IP=$(network ${array[1]});
+		if expr "x${normalize_ipv4_ip_value}" : "x.*/[0-9]*"; then
+			IP=$(network "${normalize_ipv4_ip_value}");
 		else
-			IP=${array[1]}
+			IP=$(network "${normalize_ipv4_ip_value}/32");
 		fi
 	else
-		IP=${array[1]}
+		IP=${normalize_ipv4_ip_value}
 	fi
-	printf "$IP"
+	printf "%s" "$IP"
 }
 
 # Create host query function
-function query_host() {
+query_host() {
 	"${spftoolspath}"/despf.sh "$1" | (grep -Ei ^ip || true ) >> "${tmp1}"
 }
 
-function query_black_host() {
+query_black_host() {
 	"${spftoolspath}"/despf.sh "$1" | (grep -Ei ^ip || true ) >> "${blktmp1}"
 }
 
 # Create progress dots function
-function show_dots() {
+show_dots() {
 	while ps $1 >/dev/null ; do
 	printf "."
 	sleep 1
@@ -178,13 +190,13 @@ for h in ${custom_hosts}; do
     $(query_host "${h}")
 done
 
-if [ "$include_yahoo" == "yes" ] ; then
+if [ "$include_yahoo" = "yes" ] ; then
 	printf "\nIncluding static Yahoo hosts...\n"
 
 	cat "${yahoo_static_hosts}" >> "${tmp1}"
 fi
 
-if [ "$enable_blacklist" == "yes" ] ; then
+if [ "$enable_blacklist" = "yes" ] ; then
 	printf "\nQuerying blacklist hosts...\n"
 
 	for h in ${blacklist_hosts}; do
@@ -193,14 +205,14 @@ if [ "$enable_blacklist" == "yes" ] ; then
 fi
 
 # If enabled, simplify (remove) any individual IPs already included in CIDR ranges (disabled by default)
-if [ "$simplify" == "yes" ]; then
+if [ "$simplify" = "yes" ]; then
 	printf "\nSimplifying whitelist IP addresses already included in CIDR ranges. These calculations\n"
 	printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	
 	cat "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots $!
 
-	if [ "$enable_blacklist" == "yes" ] ; then
+	if [ "$enable_blacklist" = "yes" ] ; then
 		printf "\nSimplifying blacklist IP addresses already included in CIDR ranges. These calculations\n"
 	        printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	        cat "${blktmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${blktmp2}" &
@@ -210,7 +222,7 @@ if [ "$simplify" == "yes" ]; then
 	printf "\nIP address simplification complete.\n"
 else
 	cat "${tmp1}" > "${tmp2}"
-	if [ "$enable_blacklist" == "yes" ] ; then
+	if [ "$enable_blacklist" = "yes" ] ; then
 		cat "${blktmp1}" > "${blktmp2}"
 	fi
 fi
@@ -218,62 +230,62 @@ fi
 # Check for invalid IPv4 CIDRs, then format the whitelist
 
 # If enabled, fix invalid CIDRs
-if [ "$invalid_ip4" == "fix" ] ; then
+if [ "$invalid_ip4" = "fix" ] ; then
 	printf "\nFixing invalid whitelist IPv4 CIDRs..."
 	for ip in $(cat  "${tmp2}") ; do
 		ip=$(normalize_ipv4  "$ip");
 		if [ -n "$ip" ] ; then
-			printf "$ip\tpermit\n"
+			printf "${permit_line_v4}" "$ip"
 		fi
 	done >> "${tmp3}" &
 	show_dots $!
 
-	if [ "$enable_blacklist" == "yes" ] ; then
+	if [ "$enable_blacklist" = "yes" ] ; then
 		printf "\nFixing invalid blacklist IPv4 CIDRs..."
  		for ip in $(cat  "${blktmp2}") ; do
 	                ip=$(normalize_ipv4  "$ip");
 	                if [ -n "$ip" ] ; then
-	                        printf "$ip\treject\n"
+				printf "${reject_line_v4}" "$ip"
 	                fi
         done >> "${blktmp3}" &
         show_dots $!
 	fi
 
 # If enabled, remove invalid CIDRs
-elif [ "$invalid_ip4" == "remove" ] ; then
+elif [ "$invalid_ip4" = "remove" ] ; then
 	printf "\nRemoving invalid IPv4 CIDRs from whitelist..."
 	for ip in $(cat "${tmp2}") ; do
-		iptype=$( printf "$ip" | cut -d\: -f1 )
-		origip=$( printf "$ip" | cut -d\: -f2 )
+		iptype=$( echo "$ip" | cut -d\: -f1 )
+		origip=$( echo "$ip" | cut -d\: -f2 )
 		ip=$(normalize_ipv4 "$ip");
-		if [ "$origip" == "$ip" ] ; then
-			printf "$ip\tpermit\n"
-		elif [ "$iptype" == "ip6" ] ; then
-			printf "$ip\tpermit\n"
+		if [ "$origip" = "$ip" ] ; then
+			printf "${permit_line_v4}" "$ip"
+		elif [ "$iptype" = "ip6" ] ; then
+			printf "${permit_line_v6}" "$ip"
 		fi
 	done >> "${tmp3}" &
 	show_dots $!
 
-	if [ "$enable_blacklist" == "yes" ] ; then
+	if [ "$enable_blacklist" = "yes" ] ; then
 		printf "\nRemoving invalid IPv4 CIDRs from blacklist..."
 		for ip in $(cat "${blktmp2}") ; do
-			iptype=$( printf "$ip" | cut -d\: -f1 )
-			origip=$( printf "$ip" | cut -d\: -f2 )
+			iptype=$( echo "$ip" | cut -d\: -f1 )
+			origip=$( echo "$ip" | cut -d\: -f2 )
 			ip=$(normalize_ipv4 "$ip");
-			if [ "$origip" == "$ip" ] ; then
-				printf "$ip\treject\n"
-			elif [ "$iptype" == "ip6" ] ; then
-				printf "$ip\treject\n"
+			if [ "$origip" = "$ip" ] ; then
+				printf "${reject_line_v4}" "$ip"
+			elif [ "$iptype" = "ip6" ] ; then
+				printf "${reject_line_v6}" "$ip"
 			fi
 		done >> "${blktmp3}" &
 		show_dots $!
 	fi
 
 # If enabled, keep invalid CIDRs
-elif [ "$invalid_ip4" == "keep" ] ; then
+elif [ "$invalid_ip4" = "keep" ] ; then
 	printf "\nKeeping invalid whitelist IPv4 CIDRs...\n"
 	printf "%s\n" | grep "^ip" "${tmp2}" | cut -c5- | sed s/$/'	permit'/ > "${tmp3}"
-	if [ "$enable_blacklist" == "yes" ] ; then
+	if [ "$enable_blacklist" = "yes" ] ; then
 		printf "\nKeeping invalid blacklist IPv4 CIDRs...\n"
 		printf "%s\n" | grep "^ip" "${blktmp2}" | cut -c5- | sed s/$/'	reject'/ > "${blktmp3}"
 		fi
@@ -286,7 +298,7 @@ sort -t. -k1,1n -k2,2n -k3,3n -k4,4n "${tmp3}" > "${tmp4}"
 uniq "${tmp4}" >> "${tmp5}"
 numrules="$(cat "${tmp5}" | wc -l)"
 
-if [ "$enable_blacklist" == "yes" ] ; then
+if [ "$enable_blacklist" = "yes" ] ; then
 	printf "\nSorting blacklist rules...\n"
 	sort -t. -k1,1n -k2,2n -k3,3n -k4,4n "${blktmp3}" > "${blktmp4}"
 	uniq "${blktmp4}" >> "${blktmp5}"
@@ -298,7 +310,7 @@ printf "\nWriting $numrules whitelist rules to ${postfixpath}/${whitelist}...\n"
 printf "# Whitelist generated by Postwhite v$version on $(date)\n# https://github.com/stevejenkins/postwhite/\n# $numrules total rules\n" > "${postfixpath}"/"${whitelist}"
 cat "${tmp5}" >> "${postfixpath}"/"${whitelist}"
 
-if [ "$enable_blacklist" == "yes" ] ; then
+if [ "$enable_blacklist" = "yes" ] ; then
 	printf "\nWriting $numblackrules blacklist rules to ${postfixpath}/${blacklist}...\n"
 	printf "# Blacklist generated by Postwhite v$version on $(date)\n# https://github.com/stevejenkins/postwhite/\n# $numblackrules total rules\n" > "${postfixpath}"/"${blacklist}"
 	cat "${blktmp5}" >> "${postfixpath}"/"${blacklist}"
@@ -310,7 +322,7 @@ test -e "${tmp2}" && rm "${tmp2}"
 test -e "${tmp3}" && rm "${tmp3}"
 test -e "${tmp4}" && rm "${tmp4}"
 test -e "${tmp5}" && rm "${tmp5}"
-if [ "$enable_blacklist" == "yes" ] ; then
+if [ "$enable_blacklist" = "yes" ] ; then
 	test -e "${blktmp1}" && rm "${blktmp1}"
 	test -e "${blktmp2}" && rm "${blktmp2}"
 	test -e "${blktmp3}" && rm "${blktmp3}"
@@ -319,7 +331,7 @@ if [ "$enable_blacklist" == "yes" ] ; then
 fi
 
 # Reload Postfix to pick up changes in whitelist
-if [ "$reload_postfix" == "yes" ]; then
+if [ "$reload_postfix" = "yes" ]; then
 printf '\nReloading Postfix configuration to refresh rules...\n'
 	${postfixbinarypath}/postfix reload
 fi
