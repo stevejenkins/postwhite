@@ -91,48 +91,48 @@ done
 
 # Create IPv4 normalize function
 ip2int() {
-    for i in 1 2 3 4 5; do
-        eval ip2int_${i}="$(echo "$1" | cut -s -d. -f$i)"
-    done
-    ip2int_valid_range="$((ip2int_1 | ip2int_2 | ip2int_3 | ip2int_4))"
-    [ -z "$ip2int_5" ] && [ -n "$ip2int_1" ] && [ -n "$ip2int_2" ] && [ -n "$ip2int_3" ] && [ -n "$ip2int_4" ] && [ "$ip2int_valid_range" -ge 0 ] && [ "$ip2int_valid_range" -le 255 ] &&
-        printf "%d" "$(((((((ip2int_1 << 8) | ip2int_2) << 8) | ip2int_3) << 8) | ip2int_4))"
+	for i in 1 2 3 4 5; do
+		eval ip2int_${i}="$(echo "$1" | cut -s -d. -f$i)"
+	done
+	ip2int_valid_range="$((ip2int_1 | ip2int_2 | ip2int_3 | ip2int_4))"
+	[ -z "$ip2int_5" ] && [ -n "$ip2int_1" ] && [ -n "$ip2int_2" ] && [ -n "$ip2int_3" ] && [ -n "$ip2int_4" ] && [ "$ip2int_valid_range" -ge 0 ] && [ "$ip2int_valid_range" -le 255 ] &&
+		printf "%d" "$(((((((ip2int_1 << 8) | ip2int_2) << 8) | ip2int_3) << 8) | ip2int_4))"
 }
 
 int2ip() {
-    int2ip_ui32="$1"; shift
-    int2ip_ip=""
-    [ -n "$int2ip_ui32" ] && [ "$int2ip_ui32" -ge 0 ] && [ "$int2ip_ui32" -le 4294967295 ] && for n in 1 2 3 4; do
-        int2ip_ip="$((int2ip_ui32 & 0xff))${int2ip_ip:+.}$int2ip_ip"
-        int2ip_ui32="$((int2ip_ui32 >> 8))"
-    done
-    printf "%s" "${int2ip_ip}"
+	int2ip_ui32="$1"; shift
+	int2ip_ip=""
+	[ -n "$int2ip_ui32" ] && [ "$int2ip_ui32" -ge 0 ] && [ "$int2ip_ui32" -le 4294967295 ] && for n in 1 2 3 4; do
+		int2ip_ip="$((int2ip_ui32 & 0xff))${int2ip_ip:+.}$int2ip_ip"
+		int2ip_ui32="$((int2ip_ui32 >> 8))"
+	done
+	printf "%s" "${int2ip_ip}"
 }
 
 network_v4() {
-    network_v4_ia="$(echo "$1" | cut -d/ -f1)"
-    network_v4_netmask="$(echo "$1" | cut -d/ -f2-)"
-    if [ -n "$network_v4_netmask" ] && [ "$network_v4_netmask" -ge 0 ] && [ "$network_v4_netmask" -le 32 ]; then
-        network_v4_addr="$(ip2int $network_v4_ia)"
-        network_v4_mask="$((0xffffffff << (32 - network_v4_netmask)))"
-        if [ "$network_v4_netmask" -eq 32 ]; then
-            printf "%s" $(int2ip $((network_v4_addr & network_v4_mask)))
-        else
-            printf "%s/%s" "$(int2ip $((network_v4_addr & network_v4_mask)))" "$network_v4_netmask"
-        fi
-    fi
+	network_v4_ia="$(echo "$1" | cut -d/ -f1)"
+	network_v4_netmask="$(echo "$1" | cut -d/ -f2-)"
+	if [ -n "$network_v4_netmask" ] && [ "$network_v4_netmask" -ge 0 ] && [ "$network_v4_netmask" -le 32 ]; then
+		network_v4_addr="$(ip2int $network_v4_ia)"
+		network_v4_mask="$((0xffffffff << (32 - network_v4_netmask)))"
+		if [ "$network_v4_netmask" -eq 32 ]; then
+			printf "%s" $(int2ip $((network_v4_addr & network_v4_mask)))
+		else
+			printf "%s/%s" "$(int2ip $((network_v4_addr & network_v4_mask)))" "$network_v4_netmask"
+		fi
+	fi
 }
 
 network_v6() {
-    # TODO
-    printf "%s" "$1"
+	# TODO
+	printf "%s" "$1"
 }
 
 normalize_ip() {
 	# split by ":"
 	normalize_ip_type="$( echo $1 | cut -s -d\: -f1)"
 	normalize_ip_value="$( echo $1 | cut -s -d\: -f2-)"
-        normalize_ip_IP=""
+		normalize_ip_IP=""
 	if [ x"${normalize_ip_type}" = x"ip4" ] ; then
 		# check if is a CIDR
 		if expr "x${normalize_ip_value}" : "x.*/[0-9]*" > /dev/null; then
@@ -213,37 +213,37 @@ printf "\nRecursively querying SPF records of selected whitelist mailers...\n"
 printf "\nQuerying webmail hosts...\n"
 
 for h in ${webmail_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 printf "\nQuerying social network hosts...\n"
 
 for h in ${social_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 printf "\nQuerying ecommerce hosts...\n"
 
 for h in ${commerce_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 printf "\nQuerying bulk mail hosts...\n"
 
 for h in ${bulk_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 printf "\nQuerying miscellaneous hosts...\n"
 
 for h in ${misc_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 printf "\nQuerying custom hosts...\n"
-          
+
 for h in ${custom_hosts}; do
-    query_host "${h}"
+	query_host "${h}"
 done
 
 if [ x"$include_yahoo" = x"yes" ] ; then
@@ -256,7 +256,7 @@ if [ x"$enable_blacklist" = x"yes" ] ; then
 	printf "\nQuerying blacklist hosts...\n"
 
 	for h in ${blacklist_hosts}; do
-	    query_black_host "${h}"
+		query_black_host "${h}"
 	done
 fi
 
@@ -270,9 +270,9 @@ if [ x"$simplify" = x"yes" ]; then
 
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		printf "\nSimplifying blacklist IP addresses already included in CIDR ranges. These calculations\n"
-	        printf "can take a LONG time if you have many mailers selected. Please be patient..."
-	        cat "${blktmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${blktmp2}" &
-	        show_dots "$!"
+			printf "can take a LONG time if you have many mailers selected. Please be patient..."
+			cat "${blktmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${blktmp2}" &
+			show_dots "$!"
 	fi
 	
 	printf "\nIP address simplification complete.\n"
@@ -298,7 +298,7 @@ if [ x"$invalid_ip4" = x"fix" ] ; then
 		cat "${blktmp2}" | while read ip; do
 			fix_invalid_ip "$ip" "reject"
 		done >> "${blktmp3}" &
-	        show_dots "$!"
+			show_dots "$!"
 	fi
 
 # If enabled, remove invalid CIDRs
