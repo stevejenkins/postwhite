@@ -89,17 +89,12 @@ fi
 
 # Create IPv4 normalize function
 ip2int() {
-    ip2int_a=$(echo "$1" | cut -s -d. -f1)
-    ip2int_b=$(echo "$1" | cut -s -d. -f2)
-    ip2int_c=$(echo "$1" | cut -s -d. -f3)
-    ip2int_d=$(echo "$1" | cut -s -d. -f4)
-    ip2int_e=$(echo "$1" | cut -s -d. -f5)
-    ip2int_valid_range=$((ip2int_a | ip2int_b | ip2int_c | ip2int_d | ip2int_e))
-    if [ -e "$ip2int_e" ] && [ -n "$ip2int_a" ] && [ -n "$ip2int_b" ] && [ -n "$ip2int_c" ] && [ -n "$ip2int_d" ] && [ "$ip2int_valid_range" -ge 0 ] && [ "$ip2int_valid_range" -le 255 ]; then
-        printf "%d" $(((((((ip2int_a << 8) | ip2int_b) << 8) | ip2int_c) << 8) | ip2int_d))
-    else
-        printf ""
-    fi
+    for i in 1 2 3 4 5; do
+        eval ip2int_${i}=$(echo "$1" | cut -s -d. -f$i)
+    done
+    ip2int_valid_range=$((ip2int_1 | ip2int_2 | ip2int_3 | ip2int_4))
+    [ -z "$ip2int_5" ] && [ -n "$ip2int_1" ] && [ -n "$ip2int_2" ] && [ -n "$ip2int_3" ] && [ -n "$ip2int_4" ] && [ "$ip2int_valid_range" -ge 0 ] && [ "$ip2int_valid_range" -le 255 ] &&
+        printf "%d" $(((((((ip2int_1 << 8) | ip2int_2) << 8) | ip2int_3) << 8) | ip2int_4))
 }
 
 int2ip() {
@@ -112,35 +107,41 @@ int2ip() {
     printf "%s" "${int2ip_ip}"
 }
 
-network() {
-    network_ia=$(echo "$1" | cut -d/ -f1)
-    network_netmask=$(echo "$1" | cut -d/ -f2-)
-    if [ -n "$network_netmask" ] && [ "$network_netmask" -ge 0 ] && [ "$network_netmask" -le 32 ]; then
-        network_addr=$(ip2int $network_ia);
-        network_mask=$((0xffffffff << (32 - network_netmask)));
-        if [ $network_netmask -eq 32 ]; then
-            printf "%s" $(int2ip $((network_addr & network_mask)))
+network_v4() {
+    network_v4_ia=$(echo "$1" | cut -d/ -f1)
+    network_v4_netmask=$(echo "$1" | cut -d/ -f2-)
+    if [ -n "$network_v4_netmask" ] && [ "$network_v4_netmask" -ge 0 ] && [ "$network_v4_netmask" -le 32 ]; then
+        network_v4_addr=$(ip2int $network_v4_ia);
+        network_v4_mask=$((0xffffffff << (32 - network_v4_netmask)));
+        if [ $network_v4_netmask -eq 32 ]; then
+            printf "%s" $(int2ip $((network_v4_addr & network_v4_mask)))
         else
-            printf "%s/%s" $(int2ip $((network_addr & network_mask))) $network_netmask
+            printf "%s/%s" $(int2ip $((network_v4_addr & network_v4_mask))) $network_v4_netmask
         fi
     fi
 }
 
-normalize_ipv4() {
+network_v6() {
+    # TODO
+    printf "%s" $1
+}
+
+normalize_ip() {
 	# split by ":"
-	normalize_ipv4_ip_type=$( echo ${ip} | cut -s -d\: -f1)
-	normalize_ipv4_ip_value=$( echo ${ip} | cut -s -d\: -f2)
-	if [ x"x${normalize_ipv4_ip_type}" = x"xip4" ] ; then
+	normalize_ip_type=$( echo $1 | cut -s -d\: -f1)
+	normalize_ip_value=$( echo $1 | cut -s -d\: -f2)
+        normalize_ip_IP=""
+	if [ x"${normalize_ip_type}" = x"ip4" ] ; then
 		# check if is a CIDR
-		if expr "x${normalize_ipv4_ip_value}" : "x.*/[0-9]*"; then
-			IP=$(network "${normalize_ipv4_ip_value}");
+		if expr "x${normalize_ip_value}" : "x.*/[0-9]*" > /dev/null; then
+			normalize_ip_IP=$(network_v4 "${normalize_ip_value}");
 		else
-			IP=$(network "${normalize_ipv4_ip_value}/32");
+			normalize_ip_IP=$(network_v4 "${normalize_ip_value}/32");
 		fi
-	else
-		IP=${normalize_ipv4_ip_value}
+	elif [ x"${normalize_ip_type}" = x"ip6" ]; then
+		normalize_ip_IP=$(network_v6 "${normalize_ip_value}")
 	fi
-	printf "%s" "$IP"
+	printf "%s" "$normalize_ip_IP"
 }
 
 # Create host query function
@@ -159,6 +160,46 @@ show_dots() {
 	sleep 1
 	done
 	printf "\n"
+}
+
+# Fix mode
+fix_invalid_ip() {
+	fix_invalid_ip_iptype=$( echo "$1" | cut -d\: -f1 )
+	fix_invalid_ip_ip=$(normalize_ip "$1")
+	if [ -n "$fix_invalid_ip_ip" ]; then
+		if [ x"$fix_invalid_ip_iptype" = x"ip4" ]; then
+			printf $(eval echo "\${${2}_line_v4}") "$fix_invalid_ip_ip"
+		elif [ x"$fix_invalid_ip_iptype" = x"ip6" ] ; then
+			printf $(eval echo "\${${2}_line_v6}") "$fix_invalid_ip_ip"
+		fi
+	fi
+}
+
+# Remove mode
+remove_invalid_ip() {
+	remove_invalid_ip_iptype=$( echo "$1" | cut -d\: -f1 )
+	remove_invalid_ip_origip=$( echo "$1" | cut -d\: -f2- )
+	remove_invalid_ip_ip=$(normalize_ip "$1")
+	if [ x"$remove_invalid_ip_origip" = x"$1" ]; then
+		if [ x"$remove_invalid_ip_iptype" = x"ip4" ]; then
+			printf $(eval echo "\${${2}_line_v4}") "$remove_invalid_ip_ip"
+		elif [ x"$remove_invalid_ip_iptype" = x"ip6" ] ; then
+			printf $(eval echo "\${${2}_line_v6}") "$remove_invalid_ip_ip"
+		fi
+	fi
+}
+
+# Keep mode
+keep_invalid_ip() {
+	keep_invalid_ip_iptype=$( echo "$1" | cut -d\: -f1 )
+	keep_invalid_ip_ip=$( echo "$1" | cut -d\: -f2- )
+	if [ -n "$keep_invalid_ip_ip" ]; then
+		if [ x"$keep_invalid_ip_iptype" = x"ip4" ]; then
+			printf $(eval echo "\${${2}_line_v4}") "$keep_invalid_ip_ip"
+		elif [ x"$keep_invalid_ip_iptype" = x"ip6" ] ; then
+			printf $(eval echo "\${${2}_line_v6}") "$keep_invalid_ip_ip"
+		fi
+	fi
 }
 
 # Let's DO this!
@@ -245,53 +286,31 @@ fi
 # If enabled, fix invalid CIDRs
 if [ x"$invalid_ip4" = x"fix" ] ; then
 	printf "\nFixing invalid whitelist IPv4 CIDRs..."
-	for ip in $(cat  "${tmp2}") ; do
-		ip=$(normalize_ipv4  "$ip");
-		if [ -n "$ip" ] ; then
-			printf "${permit_line_v4}" "$ip"
-		fi
+	cat "${tmp2}" | while read ip; do
+		fix_invalid_ip "$ip" "permit"
 	done >> "${tmp3}" &
 	show_dots $!
 
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		printf "\nFixing invalid blacklist IPv4 CIDRs..."
- 		for ip in $(cat  "${blktmp2}") ; do
-	                ip=$(normalize_ipv4  "$ip");
-	                if [ -n "$ip" ] ; then
-				printf "${reject_line_v4}" "$ip"
-	                fi
-        done >> "${blktmp3}" &
-        show_dots $!
+		cat "${blktmp2}" | while read ip; do
+			fix_invalid_ip "$ip" "reject"
+		done >> "${blktmp3}" &
+	        show_dots $!
 	fi
 
 # If enabled, remove invalid CIDRs
 elif [ x"$invalid_ip4" = x"remove" ] ; then
 	printf "\nRemoving invalid IPv4 CIDRs from whitelist..."
-	for ip in $(cat "${tmp2}") ; do
-		iptype=$( echo "$ip" | cut -d\: -f1 )
-		origip=$( echo "$ip" | cut -d\: -f2- )
-		if [ x"$iptype" = x"ip4" ]; then
-			ip=$(normalize_ipv4 "$ip");
-			if [ x"$origip" = x"$ip" ] ; then
-				printf "${permit_line_v4}" "$ip"
-			fi
-		elif [ x"$iptype" = x"ip6" ] ; then
-			printf "${permit_line_v6}" "$ip"
-		fi
+	cat "${tmp2}" | while read ip; do
+		remove_invalid_ip "$ip" "permit"
 	done >> "${tmp3}" &
 	show_dots $!
 
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		printf "\nRemoving invalid IPv4 CIDRs from blacklist..."
-		for ip in $(cat "${blktmp2}") ; do
-			iptype=$( echo "$ip" | cut -d\: -f1 )
-			origip=$( echo "$ip" | cut -d\: -f2- )
-			ip=$(normalize_ipv4 "$ip");
-			if [ x"$origip" = x"$ip" ] ; then
-				printf "${reject_line_v4}" "$ip"
-			elif [ x"$iptype" = x"ip6" ] ; then
-				printf "${reject_line_v6}" "$ip"
-			fi
+		cat "${blktmp2}" | while read ip; do
+			remove_invalid_ip "$ip" "reject"
 		done >> "${blktmp3}" &
 		show_dots $!
 	fi
@@ -299,10 +318,17 @@ elif [ x"$invalid_ip4" = x"remove" ] ; then
 # If enabled, keep invalid CIDRs
 elif [ x"$invalid_ip4" = x"keep" ] ; then
 	printf "\nKeeping invalid whitelist IPv4 CIDRs...\n"
-	grep "^ip" "${tmp2}" | cut -c5- | (while read $ip; do printf "${permit_line_v4}" "$ip"; done) > "${tmp3}"
+	cat "${tmp2}" | while read ip; do
+		keep_invalid_ip "$ip" "permit"
+	done >> "${tmp3}" &
+	show_dots $!
+
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		printf "\nKeeping invalid blacklist IPv4 CIDRs...\n"
-		grep "^ip" "${blktmp2}" | cut -c5- | (while read $ip; do printf "${reject_line_v4}" "$ip"; done) > "${blktmp3}"
+		cat "${blktmp2}" | while read ip; do
+			keep_invalid_ip "$ip" "reject"
+		done >> "${blktmp3}" &
+		show_dots $!
 	fi
 fi
 
