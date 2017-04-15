@@ -168,9 +168,9 @@ fix_invalid_ip() {
 	fix_invalid_ip_ip=$(normalize_ip "$1")
 	if [ -n "$fix_invalid_ip_ip" ]; then
 		if [ x"$fix_invalid_ip_iptype" = x"ip4" ]; then
-			printf $(eval echo "\${${2}_line_v4}") "$fix_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v4}")" "$fix_invalid_ip_ip"
 		elif [ x"$fix_invalid_ip_iptype" = x"ip6" ] ; then
-			printf $(eval echo "\${${2}_line_v6}") "$fix_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v6}")" "$fix_invalid_ip_ip"
 		fi
 	fi
 }
@@ -180,11 +180,11 @@ remove_invalid_ip() {
 	remove_invalid_ip_iptype=$( echo "$1" | cut -d\: -f1 )
 	remove_invalid_ip_origip=$( echo "$1" | cut -d\: -f2- )
 	remove_invalid_ip_ip=$(normalize_ip "$1")
-	if [ x"$remove_invalid_ip_origip" = x"$1" ]; then
+	if [ x"$remove_invalid_ip_origip" = x"$remove_invalid_ip_ip" ]; then
 		if [ x"$remove_invalid_ip_iptype" = x"ip4" ]; then
-			printf $(eval echo "\${${2}_line_v4}") "$remove_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v4}")" "$remove_invalid_ip_ip"
 		elif [ x"$remove_invalid_ip_iptype" = x"ip6" ] ; then
-			printf $(eval echo "\${${2}_line_v6}") "$remove_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v6}")" "$remove_invalid_ip_ip"
 		fi
 	fi
 }
@@ -195,9 +195,9 @@ keep_invalid_ip() {
 	keep_invalid_ip_ip=$( echo "$1" | cut -d\: -f2- )
 	if [ -n "$keep_invalid_ip_ip" ]; then
 		if [ x"$keep_invalid_ip_iptype" = x"ip4" ]; then
-			printf $(eval echo "\${${2}_line_v4}") "$keep_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v4}")" "$keep_invalid_ip_ip"
 		elif [ x"$keep_invalid_ip_iptype" = x"ip6" ] ; then
-			printf $(eval echo "\${${2}_line_v6}") "$keep_invalid_ip_ip"
+			printf "$(eval printf "%s" "\${${2}_line_v6}")" "$keep_invalid_ip_ip"
 		fi
 	fi
 }
