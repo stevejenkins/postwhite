@@ -129,7 +129,7 @@ network_v6() {
 normalize_ip() {
 	# split by ":"
 	normalize_ip_type=$( echo $1 | cut -s -d\: -f1)
-	normalize_ip_value=$( echo $1 | cut -s -d\: -f2)
+	normalize_ip_value=$( echo $1 | cut -s -d\: -f2-)
         normalize_ip_IP=""
 	if [ x"${normalize_ip_type}" = x"ip4" ] ; then
 		# check if is a CIDR
