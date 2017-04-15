@@ -89,7 +89,10 @@ fi
 
 # Create IPv4 normalize function
 ip2int() {
-    echo "$1" | IFS=. read ip2int_a ip2int_b ip2int_c ip2int_d
+    ip2int_a=$(echo "$1" | cut -s -d. -f1)
+    ip2int_b=$(echo "$1" | cut -s -d. -f2)
+    ip2int_c=$(echo "$1" | cut -s -d. -f3)
+    ip2int_d=$(echo "$1" | cut -s -d. -f4)
     printf $(((((((ip2int_a << 8) | ip2int_b) << 8) | ip2int_c) << 8) | ip2int_d))
 }
 
@@ -103,7 +106,8 @@ int2ip() {
 }
 
 network() {
-    echo $1 | IFS="/" read network_ia network_netmask
+    network_ia=$(echo "$1" | cut -d/ -f1)
+    network_netmask=$(echo "$1" | cut -d/ -f2)
     network_addr=$(ip2int $network_ia);
     network_mask=$((0xffffffff << (32 -$network_netmask)));
     if [ $network_netmask -eq 32 ]; then
