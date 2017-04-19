@@ -1,7 +1,6 @@
 MIT License
 
-Copyright (c) 2017 Ricardo Iván Vieitez Parra 
-Copyright (c) 2017 Jenkins Holdings LLC
+Copyright (c) 2017 Steve Jenkins
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
