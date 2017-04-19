@@ -12,7 +12,8 @@ lastupdated="18 April 2017"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
 #	 2) Move postwhite.conf to /etc
-#	 3) Run ./postwhite
+#	 3) Run ./postwhite [config-file]
+# Optional config file passed via command line overrides the default config file location.
 
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
@@ -20,8 +21,11 @@ lastupdated="18 April 2017"
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jan Sarenik for SPF-Tools
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
+# Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file improvements,
+#           and removal of bash-isms so that script is usable on more systems.
 
 # USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
+# CONFIGURATION FILE CAN ALSO BE PASSED FROM COMMAND LINE
 
 # NO NEED TO EDIT PAST THIS LINE
 
