@@ -7,8 +7,8 @@
 
 # By Steve Jenkins (https://www.stevejenkins.com/)
 
-version="3.0"
-lastupdated="18 April 2017"
+version="3.1"
+lastupdated="29 April 2017"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
 #	 2) Move postwhite.conf to /etc
