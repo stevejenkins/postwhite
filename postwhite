@@ -56,10 +56,10 @@ set -e
 
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
-if [ -n $2 ]; then
-	config_file="/etc/postwhite.conf"
+if [ -n "$1" ]; then
+	config_file="$1"
 else
-	config_file="$2"
+	config_file="/etc/postwhite.conf"
 fi
 
 # Read config file options
