@@ -129,7 +129,6 @@ network_v4() {
 }
 
 network_v6() {
-	# TODO
 	printf "%s" "$1"
 }
 
