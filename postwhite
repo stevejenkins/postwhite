@@ -51,11 +51,12 @@ reject_line_v4="%s\treject\n"
 permit_line_v6="${permit_line_v4}"
 reject_line_v6="${reject_line_v4}"
 
-# Abort script on error (fyi: enabling will cause script to exit silently if mailer has no valid results)
+# Abort script on error (FYI: enabling will cause script to exit silently if mailer has no valid results)
 set -e
 
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
+# Check for passed config file
 if [ -n "$1" ]; then
 	config_file="$1"
 else
@@ -251,7 +252,7 @@ for h in ${custom_hosts}; do
 done
 
 if [ x"$include_yahoo" = x"yes" ] ; then
-	printf "\nIncluding static Yahoo hosts...\n"
+	printf "\nIncluding scraped Yahoo! outbound hosts...\n"
 
 	cat "${yahoo_static_hosts}" >> "${tmp1}"
 fi
