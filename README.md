@@ -33,6 +33,12 @@ I recommend cloning both the SPF-Tools and the Postwhite repos into your ```/usr
 
     @daily /usr/local/bin/postwhite/postwhite > /dev/null 2>&1 #Update Postscreen Whitelists
 
+I also recommend updating the list of known Yahoo! IP outbound mailers weekly:
+
+    @weekly /usr/local/bin/postwhite/scrape_yahoo > /dev/null 2>&1 #Update Yahoo! IPs for Postscreen Whitelists
+
+*(Please read more about Yahoo! hosts below)*
+
 When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then reload Postfix to pick up any changes.
 
 Add the filename of your whitelist (and optionally your blacklist) to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
