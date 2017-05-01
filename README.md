@@ -1,3 +1,5 @@
+[ ![Codeship Status for stevejenkins/postwhite](https://app.codeship.com/projects/8cd4ff10-77b6-0133-22fe-02534086190b/status?branch=master)](https://app.codeship.com/projects/118483) [![Code Climate](https://codeclimate.com/github/stevejenkins/postwhite/badges/gpa.svg)](https://codeclimate.com/github/stevejenkins/postwhite)
+
 # Postwhite - Automatic Postcreen Whitelist & Blacklist Generator
 A script for generating a Postscreen whitelist (and optionally a blacklist) based on large and presumably trustworthy senders' SPF records.
 
@@ -33,6 +35,12 @@ I recommend cloning both the SPF-Tools and the Postwhite repos into your ```/usr
 
     @daily /usr/local/bin/postwhite/postwhite > /dev/null 2>&1 #Update Postscreen Whitelists
 
+I also recommend updating the list of known Yahoo! IP outbound mailers weekly:
+
+    @weekly /usr/local/bin/postwhite/scrape_yahoo > /dev/null 2>&1 #Update Yahoo! IPs for Postscreen Whitelists
+
+*(Please read more about Yahoo! hosts below)*
+
 When executed, Postwhite will generate a file named ```postscreen_spf_whitelist.cidr```, write it to your Postfix directory, then reload Postfix to pick up any changes.
 
 Add the filename of your whitelist (and optionally your blacklist) to the ```postscreen_access_list``` option in your Postfix ```main.cf``` file, like this:
@@ -65,8 +73,12 @@ To add your own additional custom hosts, add them to the ```custom_hosts``` sect
 
 Additional trusted mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
 
-## Yahoo Hosts
-As mentioned in the **Known Issues**, Yahoo's SPF record doesn't support queries to expose their netblocks, and therefore a dynamic list of Yahoo mailers can't be built. However, using the IP addresses listed at https://help.yahoo.com/kb/SLN23997.html, I manually created a ```yahoo_static_hosts.txt``` file which gets included in the list of trusted hosts by default. To disable these static Yahoo IP addresses from being included in your whitelist, set the ```include_yahoo``` configuration option in ```/etc/postwhite.conf``` to ```include_yahoo="no"```.
+## Yahoo! Hosts
+As mentioned in the **Known Issues**, Yahoo's SPF record doesn't support queries to expose their netblocks, and therefore a dynamic list of Yahoo mailers can't be built. However, Yahoo! does publish a list of outbound mailer IP addresses at https://help.yahoo.com/kb/SLN23997.html.
+
+A list of Yahoo! outbound IP addresses, based on the linked knowledgebase article and formatted for Postwhite, is included as ```yahoo_static_hosts.txt```. By default, the contents of this file are added to the final whitelist. To disable the Yahoo! IPs from being included in your whitelist, set the ```include_yahoo``` configuration option in ```/etc/postwhite.conf``` to ```include_yahoo="no"```.
+
+The ```yahoo_static_hosts.txt``` file can be periodically updated by running the ```scrape_yahoo``` script, which requires either **Wget** or **cURL** (included on most systems). The ```scrape_yahoo``` script reads the Postwhite config file for the location to write the updated list of Yahoo! oubound IP addresses. Run the ```scrape_yahoo``` script periodically via cron (I recommend no more than weekly) to automatically update the list of Yahoo! IPs used by Postwhite.
 
 ## Blacklisting
 To enable blacklisting, set ```enable_blacklist=yes``` and then list blacklisted hosts in ```blacklist_hosts```. Please refer to the blacklisting warning above. Blacklisting is not the primary purpose of Postwhite, and most users will never need to turn it on.
@@ -88,7 +100,7 @@ Other options in ```postwhite.conf``` include changing the filenames for your wh
 * Thanks to Jan Sarenik (author of <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a>).
 * Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for patches and contributions to Postwhite, include internal code to validate CIDRs.
 * Thanks to <a target="_blank" href="https://github.com/corrideat">Ricardo Iván Vieitez Parra</a> for contributions to Postwhite, including external config file support, normalization improvements, error handling, and additional modifications that allow Postwhite to run on additional systems.
-* Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, which really isn't my bag.
+* Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, and for writing the initial version of the ```scrape_yahoo``` script.
 
 # More Info
 My blog post discussing how Postwhite came to be is here:
@@ -96,7 +108,7 @@ My blog post discussing how Postwhite came to be is here:
 http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-ip-addresses-large-webmail-providers/
 
 # Known Issues
-* I'd love to include Yahoo's IPs in the whitelist, but their SPF record doesn't support queries to expose their netblocks. The closest thing I can find to a published list from Yahoo is here: https://help.yahoo.com/kb/SLN23997.html. I don't know how often it's updated, but it's as good a starting point as any. A static version of this list is currently included by default when Postwhite builds its whitelist. But if you have a suggestion for a more elegant solution, please create an issue and let me know, or create a pull request.
+* I'd love to include Yahoo's IPs in the whitelist via the same methods used for all other mails, but their SPF record doesn't support queries to expose their netblocks. The included ```scrape_yahoo``` script, which creates a static list of Yahoo! IPs by scraping their web page, is an acceptable work-around, but if you have a suggestion for a more elegant solution, please create an issue and let me know, or create a pull request.
 
 * I have no way of validating IPv6 CIDRs yet. For now, the script assumes all SPF-published IPv6 CIDRs are valid and includes them in the whitelist.
 

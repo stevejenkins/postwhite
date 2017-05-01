@@ -1,0 +1,67 @@
+#!/bin/sh
+
+#########################################################################
+# Scrape Yahoo! - Generates a list of Yahoo! Outbound IPs for Postwhite #
+# https://github.com/stevejenkins/postwhite                             #
+#########################################################################
+
+# By Steve Cook (https://www.stevecook.net/)
+# and Steve Jenkins (https://www.stevejenkins.com/)
+
+version="1.0"
+lastupdated="30 April 2017"
+
+yahoo_url="https://help.yahoo.com/kb/SLN23997.html"
+
+# NO NEED TO EDIT PAST THIS LINE
+
+#################################################################
+
+# Abort script on error
+set -e
+
+printf "Scraping Yahoo! outbound IP addresses...\n"
+
+# Check for passed config file
+if [ -n "$1" ]; then
+        config_file="$1"
+else
+        config_file="/etc/postwhite.conf"
+fi
+
+# Read config file options   
+if [ -s $config_file ] ; then
+        printf "\nReading options from %s...\n" "$config_file"
+        . "${config_file}"
+else
+        >&2 printf "%s: Can't find %s. Exiting.\n" "$0" "$config_file"
+        exit 1
+fi
+
+# Check for wget or curl
+if [ `command -v wget` ]
+then
+        content=$(wget $yahoo_url -q -O -)
+elif [ -n `command -v curl` ]
+then
+        content=$(curl -s -L $yahoo_url)
+else
+        echo "wget or curl required.";
+        exit 1;
+fi
+
+# Scrape and format IPv4 addresses
+ipv4_mailers=$(echo "$content" | grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/([0-9]{1,3}?)' | while read line; do echo "ip4:$line"; done)
+
+# Overwrite old Yahoo! mailer list with scraped IPv4 hosts
+echo "$ipv4_mailers" > "$yahoo_static_hosts"
+
+# Scrape and format IPv6 addresses
+ipv6_mailers=$(echo "$content" | grep -E -o '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))' | while read line; do echo "ipv6:$line"; done)
+
+# Append IPv6 hosts to newly-created Yahoo! mailer list
+echo "$ipv6_mailers" >> "$yahoo_static_hosts"
+
+printf '\nYahoo! outbound mailers updated.\n'
+
+exit
