@@ -7,8 +7,8 @@
 
 # By Steve Jenkins (https://www.stevejenkins.com/)
 
-version="3.0"
-lastupdated="18 April 2017"
+version="3.1"
+lastupdated="30 April 2017"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
 #	 2) Move postwhite.conf to /etc
@@ -22,7 +22,8 @@ lastupdated="18 April 2017"
 # Thanks to Jan Sarenik for SPF-Tools
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
 # Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file improvements,
-#           and removal of bash-isms so that script is usable on more systems.
+#           and removal of bash-isms so that script is usable on more systems
+# Thanks to Steve Cook for Yahoo! IP scraping help
 
 # USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
 # CONFIGURATION FILE CAN ALSO BE PASSED FROM COMMAND LINE
