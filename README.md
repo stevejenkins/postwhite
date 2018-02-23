@@ -16,7 +16,7 @@ If all of the whitelist mailers are selected when Postwhite runs, the resulting 
 By default, Postwhite has blacklisting turned off. Most users will not need to ever turn it on, but it's there if you *really* believe you need it. If you choose to enable it, make sure you understand the implications of blacklisting IP addresses based on their hostnames and associated mailers, and re-run Postwhite often via cron to make sure you're not inadvertently blocking legitimate senders.
 
 # Requirements
-Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" 
+Postwhite runs as a shell script (```/bin/sh```) and relies on two scripts from the <a target="_blank" 
 href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin/```directory on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
 
 **Please update SPF-Tools whenever you update Postwhite, as both are under continuous development, and sometimes new features of Postwhite depend upon an updated version of SPF-Tools.**
