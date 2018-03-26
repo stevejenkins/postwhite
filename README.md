@@ -101,6 +101,7 @@ Other options in ```postwhite.conf``` include changing the filenames for your wh
 * Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for patches and contributions to Postwhite, include internal code to validate CIDRs.
 * Thanks to <a target="_blank" href="https://github.com/corrideat">Ricardo Iván Vieitez Parra</a> for contributions to Postwhite, including external config file support, normalization improvements, error handling, and additional modifications that allow Postwhite to run on additional systems.
 * Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, and for writing the initial version of the ```scrape_yahoo``` script.
+* Thanks to all the generous [contributors](https://github.com/stevejenkins/postwhite/graphs/contributors) right here on GitHub who have helped move the project along!
 
 # More Info
 My blog post discussing how Postwhite came to be is here:
