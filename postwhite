@@ -57,29 +57,26 @@ set -e
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
 # Check for passed config file
+config_file="/etc/postwhite.conf"
 if [ -n "$1" ]; then
 	config_file="$1"
-else
-	config_file="/etc/postwhite.conf"
 fi
 
 # Read config file options
-if [ -s $config_file ] ; then
-	printf "\nReading options from %s...\n" "$config_file"
-	. "${config_file}"
-else
-	>&2 printf "%s: Can't find %s. Exiting.\n" "$0" "$config_file"
+if [ ! -s $config_file ] ; then
+	printf "%s: Can't find %s. Exiting.\n" "$0" "$config_file" 1>&2
 	exit 1
 fi
+printf "\nReading options from %s...\n" "$config_file"
+. "${config_file}"
 
 # Create temporary files
 printf "\nCreating temporary files...\n"
 tmpBase=$(basename "$0")
 
+tmpPrefix="tmp"
 if [ x"$enable_blacklist" = x"yes" ]; then
 	tmpPrefix="tmp blktmp"
-else
-	tmpPrefix="tmp"
 fi
 
 for p in $tmpPrefix; do
@@ -136,7 +133,7 @@ normalize_ip() {
 	# split by ":"
 	normalize_ip_type="$( echo $1 | cut -s -d\: -f1)"
 	normalize_ip_value="$( echo $1 | cut -s -d\: -f2-)"
-		normalize_ip_IP=""
+	normalize_ip_IP=""
 	if [ x"${normalize_ip_type}" = x"ip4" ] ; then
 		# check if is a CIDR
 		if expr "x${normalize_ip_value}" : "x.*/[0-9]*" > /dev/null; then
@@ -161,9 +158,9 @@ query_black_host() {
 
 # Create progress dots function
 show_dots() {
-	while ps "$1" >/dev/null ; do
-	printf "."
-	sleep 1
+	while ps "$1" >/dev/null; do
+		printf "."
+		sleep 1
 	done
 	printf "\n"
 }
