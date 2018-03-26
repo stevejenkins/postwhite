@@ -35,7 +35,7 @@ lastupdated="30 April 2017"
 # CUSTOM HOSTS CAN BE ADDED IN /etc/postwhite.conf
 
 # Hosts to query
-webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com"
+webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com secure-mailgate.com"
 
 social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
 
