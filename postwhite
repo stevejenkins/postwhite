@@ -6,7 +6,7 @@
 # By Steve Jenkins (https://www.stevejenkins.com/)                #
 ###################################################################
 
-version="3.2"
+version="3.3"
 lastupdated="25 March 2018"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
@@ -17,12 +17,12 @@ lastupdated="25 March 2018"
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
 #
-# Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
-# Thanks to Jan Sarenik for SPF-Tools
-# Thanks to Jose Borges Ferreira for IPv4 normalization help
-# Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file improvements,
-#           and removal of bash-isms so that script is usable on more systems
-# Thanks to Steve Cook for Yahoo! IP scraping help
+# Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script.
+# Thanks to Jan Sarenik for SPF-Tools.
+# Thanks to Jose Borges Ferreira for IPv4 normalization help.
+# Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file
+#           improvements, and removal of bash-isms so that script is usable on more systems.
+# Thanks to Steve Cook for Yahoo! IP scraping help.
 # Thanks to all the additional contributors on GitHub!
 #
 # USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
@@ -36,15 +36,20 @@ lastupdated="25 March 2018"
 # CUSTOM HOSTS CAN BE ADDED IN /etc/postwhite.conf
 
 # Hosts to query
-webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com secure-mailgate.com"
+webmail_hosts="aol.com fastmail.com google.com gmx.com hotmail.com icloud.com \
+	inbox.com mail.com microsoft.com outlook.com secure-mailgate.com zoho.com"
 
-social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
+social_hosts="facebook.com facebookmail.com instagram.com linkedin.com \
+	pinterest.com reddit.com tumblr.com twitter.com"
 
-commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
+commerce_hosts="amazon.com craigslist.org ebay.com paypal.com"
 
-bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com sparkpost.com sparkpostmail.com"
+bulk_hosts="amazonses.com authsmtp.com constantcontact.com \
+	cust-spf.exacttarget.com exacttarget.com fbmta.com fishbowl.com \
+	icontact.com mailchimp.com mailgun.com mailjet.com messagelabs.com \
+	messagegears.net sendgrid.com sendgrid.net sparkpost.com sparkpostmail.com"
 
-misc_hosts="zendesk.com github.com"
+misc_hosts="github.com zendesk.com"
 
 permit_line_v4="%s\tpermit\n"
 reject_line_v4="%s\treject\n"
