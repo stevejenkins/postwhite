@@ -1,11 +1,10 @@
 #!/bin/sh
-
+#
 ###################################################################
 # Postwhite - Automatic Postcreen Whitelist / Blacklist Generator #
 # https://github.com/stevejenkins/postwhite                       #
+# By Steve Jenkins (https://www.stevejenkins.com/)                #
 ###################################################################
-
-# By Steve Jenkins (https://www.stevejenkins.com/)
 
 version="3.1"
 lastupdated="30 April 2017"
@@ -14,22 +13,22 @@ lastupdated="30 April 2017"
 #	 2) Move postwhite.conf to /etc
 #	 3) Run ./postwhite [config-file]
 # Optional config file passed via command line overrides the default config file location.
-
+#
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
-
+#
 # Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
 # Thanks to Jan Sarenik for SPF-Tools
 # Thanks to Jose Borges Ferreira for IPv4 normalization help
 # Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file improvements,
 #           and removal of bash-isms so that script is usable on more systems
 # Thanks to Steve Cook for Yahoo! IP scraping help
-
+#
 # USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
 # CONFIGURATION FILE CAN ALSO BE PASSED FROM COMMAND LINE
-
+#
 # NO NEED TO EDIT PAST THIS LINE
-
+#
 #################################################################
 
 # DEFAULT HOSTS
