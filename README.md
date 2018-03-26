@@ -21,6 +21,8 @@ href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh**
 
 **Please update SPF-Tools whenever you update Postwhite, as both are under continuous development, and sometimes new features of Postwhite depend upon an updated version of SPF-Tools.**
 
+Postwhite also assumes that you have **Postfix** and the appropriate **bind-utils** package for your Linux distro installed on your system.
+
 # Usage
 1. Make sure you have <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> on your system
 2. Move the ```postwhite.conf``` file to your `/etc/` directory
