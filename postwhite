@@ -270,7 +270,7 @@ if [ x"$simplify" = x"yes" ]; then
 	printf "\nSimplifying whitelist IP addresses already included in CIDR ranges. These calculations\n"
 	printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	
-	cat "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
+	sed '/\./s/\/32//g' "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots "$!"
 
 	if [ x"$enable_blacklist" = x"yes" ] ; then
@@ -282,7 +282,7 @@ if [ x"$simplify" = x"yes" ]; then
 	
 	printf "\nIP address simplification complete.\n"
 else
-	cat "${tmp1}" > "${tmp2}"
+	sed '/\./s/\/32//g' "${tmp1}" > "${tmp2}"
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		cat "${blktmp1}" > "${blktmp2}"
 	fi
