@@ -1,0 +1,61 @@
+#!/bin/sh
+
+###########################################################################
+# Query Mailer - Generates a Postscreen whitelist for a mailhost that     #
+# doesn't publish their outbound mailer IPs via SPF records               #
+# https://github.com/stevejenkins/postwhite                               #
+###########################################################################
+
+# By Jesse Norell (https://github.com/jnorell)
+# and Steve Jenkins (https://www.stevejenkins.com/)
+
+version="1.0"
+lastupdated="14 April 2018"
+
+temp_file="/tmp/ovh_hosts.txt"
+whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
+        
+###########################################################################
+        
+# This script uses "mail-out.ovh.net" as a working example of a mailhost
+# that does not publish their outbound mailer IP address via SPF records. To
+# use this script as a template for additional hosts:
+
+# 1. Copy this script to a new unique filename
+# 2. Edit the script's mailhost and numerical range values as required
+# 3. Set a unique output file (/etc/postfix/postscreen_*_whitelist.cidr)
+# 4. Configure cron to run the new script as often as you like
+# 5. Include the output file in Postfix's postscreen_access_list parameter
+
+###########################################################################
+
+# Uncomment to see output
+set -x
+
+printf "Querying outbound IP addresses. This could take a while...\n"
+
+# Query user-defined mailer range
+
+for a in {1..50};
+        do for b in {1..50};
+                do host ${a}.mo${b}.mail-out.ovh.net;
+        done;
+done > $temp_file
+
+# Format queried hosts
+
+printf "Formatting custom whitelist...\n"
+
+grep 'has address' /tmp/ovh_hosts.txt | awk '{print $4 " permit"}' | sort -uV  > $whitelist_file
+
+# Restart Postfix
+
+printf "Restarting Postfix...\n"
+
+postfix reload
+
+# All done!
+
+printf "Done!\n"
+
+exit
