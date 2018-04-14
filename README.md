@@ -16,10 +16,12 @@ If all of the whitelist mailers are selected when Postwhite runs, the resulting 
 By default, Postwhite has blacklisting turned off. Most users will not need to ever turn it on, but it's there if you *really* believe you need it. If you choose to enable it, make sure you understand the implications of blacklisting IP addresses based on their hostnames and associated mailers, and re-run Postwhite often via cron to make sure you're not inadvertently blocking legitimate senders.
 
 # Requirements
-Postwhite runs as a **Bash** script and relies on two scripts from the <a target="_blank" 
+Postwhite runs as a shell script (```/bin/sh```) and relies on two scripts from the <a target="_blank" 
 href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> project (**despf.sh** and **simplify.sh**) to help recursively query SPF records. I recommend cloning or copying the entire SPF-Tools repo to ```/usr/local/bin/```directory on your system, then confirming the ```spftoolspath``` value in ```postwhite```.
 
 **Please update SPF-Tools whenever you update Postwhite, as both are under continuous development, and sometimes new features of Postwhite depend upon an updated version of SPF-Tools.**
+
+Postwhite also assumes that you have **Postfix** and the appropriate **bind-utils** package for your Linux distro installed on your system.
 
 # Usage
 1. Make sure you have <a target="_blank" href="https://github.com/jsarenik/spf-tools">SPF-Tools</a> on your system
@@ -73,8 +75,15 @@ To add your own additional custom hosts, add them to the ```custom_hosts``` sect
 
 Additional trusted mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
 
+## Hosts that Don't Publish their Outbound Mailers via SPF Records
+Because Postwhite relies on published SPF records to build its whitelist, mailers who refuse to publish outbound mailer IP addresses via SPF are problematic. The largest such host is Yahoo!, which is dealt with separately (see below). For smaller mailhosts without SPF-published mailer lists, the included `query_host_ovh` file is a working example of a script that queries a range of hostnames for a specific mailer (`mail-out.ovh.net` in the included example), collects valid IP addresses, and includes them in a custom whitelist. The new custom whitelist may then be included in as an additional entry in your Postfix's `postscreen_access_list` parameter (see **Usage** above). An example of the `query_host_ovh` file's output is included in the `/examples/` folder as `postscreen_ovh_whitelist.cidr`.
+
+To create additional customized query scripts for mailers that don't publish outbound IPs via SPF, copy the example `query_host_ovh` file to a new unique filename, edit the script's mailhost and numerical range values as required, set a unique output file (`/etc/postfix/postscreen_*_whitelist.cidr`), include the output file in Postfix's `postscreen_access_list` parameter, then configure cron to run the new query script periodically.
+
+Depending on the size of the range you wish to query, this script could take a long time to complete. I recommend testing on a small fraction of the mailhost's range before pushing the script to a production environment.
+
 ## Yahoo! Hosts
-As mentioned in the **Known Issues**, Yahoo's SPF record doesn't support queries to expose their netblocks, and therefore a dynamic list of Yahoo mailers can't be built. However, Yahoo! does publish a list of outbound mailer IP addresses at https://help.yahoo.com/kb/SLN23997.html.
+As mentioned in the **Known Issues**, Yahoo!'s SPF record doesn't support queries to expose their netblocks, and therefore a dynamic list of Yahoo mailers can't be built. However, Yahoo! does publish a list of outbound mailer IP addresses at https://help.yahoo.com/kb/SLN23997.html.
 
 A list of Yahoo! outbound IP addresses, based on the linked knowledgebase article and formatted for Postwhite, is included as ```yahoo_static_hosts.txt```. By default, the contents of this file are added to the final whitelist. To disable the Yahoo! IPs from being included in your whitelist, set the ```include_yahoo``` configuration option in ```/etc/postwhite.conf``` to ```include_yahoo="no"```.
 
@@ -101,6 +110,7 @@ Other options in ```postwhite.conf``` include changing the filenames for your wh
 * Thanks to <a target="_blank" href="https://github.com/jcbf">Jose Borges Ferreira</a> for patches and contributions to Postwhite, include internal code to validate CIDRs.
 * Thanks to <a target="_blank" href="https://github.com/corrideat">Ricardo Iván Vieitez Parra</a> for contributions to Postwhite, including external config file support, normalization improvements, error handling, and additional modifications that allow Postwhite to run on additional systems.
 * Thanks to partner (business... not life) <a target="_blank" href="http://stevecook.net/">Steve Cook</a> for helping me cludge through Bash scripting, and for writing the initial version of the ```scrape_yahoo``` script.
+* Thanks to all the generous [contributors](https://github.com/stevejenkins/postwhite/graphs/contributors) right here on GitHub who have helped move the project along!
 
 # More Info
 My blog post discussing how Postwhite came to be is here:
@@ -112,7 +122,7 @@ http://www.stevejenkins.com/blog/2015/11/postscreen-whitelisting-smtp-outbound-i
 
 * I have no way of validating IPv6 CIDRs yet. For now, the script assumes all SPF-published IPv6 CIDRs are valid and includes them in the whitelist.
 
-* I've improved the sorting by doing the ```uniq``` separately, after the sort. ```sort -u -V``` is still ideal, but it the ```-V``` option doesn't exist on all platforms (OSX doesn't support it, for example). For now, I can live with the two-step ```sort``` and ```uniq```, even though the final output splits the IPv6 address into two grips: those that start with letters and numbers (2a00, 2a01, etc.) at the top, and those that start with numbers only (2001, 2004, etc.) at the bottom. All the IPv4 addresses in the middle are sorted properly. See the **testdata** directory for examples of different sorting attempts or to play around with your own attempts at sorting. If you have any suggestions to improve the sorting without losing any data, I'm all ears!
+* I've improved the sorting by doing the ```uniq``` separately, after the sort. ```sort -u -V``` is still ideal, but it the ```-V``` option doesn't exist on all platforms (OSX doesn't support it, for example). For now, I can live with the two-step ```sort``` and ```uniq```, even though the final output splits the IPv6 address into two grips: those that start with letters and numbers (2a00, 2a01, etc.) at the top, and those that start with numbers only (2001, 2004, etc.) at the bottom. All the IPv4 addresses in the middle are sorted properly. See the `/testdata/` folder for examples of different sorting attempts or to play around with your own attempts at sorting. If you have any suggestions to improve the sorting without losing any data, I'm all ears!
 
 # Suggestions for Additional Mailers
 If you're a Postfix admin who sees a good number of ```PASS OLD``` entries for Postscreen in your mail logs, and have a suggestion for an additional mail host that might be a good candidate to include in Postwhite, please comment on this issue: https://github.com/stevejenkins/postwhite/issues/2

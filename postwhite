@@ -1,50 +1,55 @@
 #!/bin/sh
-
+#
 ###################################################################
 # Postwhite - Automatic Postcreen Whitelist / Blacklist Generator #
 # https://github.com/stevejenkins/postwhite                       #
+# By Steve Jenkins (https://www.stevejenkins.com/)                #
 ###################################################################
 
-# By Steve Jenkins (https://www.stevejenkins.com/)
-
-version="3.1"
-lastupdated="30 April 2017"
+version="3.4"
+lastupdated="14 April 2018"
 
 # Usage: 1) Place entire /postwhite directory in /usr/local/bin
 #	 2) Move postwhite.conf to /etc
 #	 3) Run ./postwhite [config-file]
 # Optional config file passed via command line overrides the default config file location.
-
+#
 # Requires SPF-Tools (https://github.com/jsarenik/spf-tools)
 # Please update your copy of spf-tools whenever you update Postwhite
-
-# Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script
-# Thanks to Jan Sarenik for SPF-Tools
-# Thanks to Jose Borges Ferreira for IPv4 normalization help
-# Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file improvements,
-#           and removal of bash-isms so that script is usable on more systems
-# Thanks to Steve Cook for Yahoo! IP scraping help
-
+#
+# Thanks to Mike Miller (mmiller@mgm51.com) for gwhitelist.sh script.
+# Thanks to Jan Sarenik for SPF-Tools.
+# Thanks to Jose Borges Ferreira for IPv4 normalization help.
+# Thanks to Ricardo Iván Vieitez Parra for improved error reporting, normalization, conf file
+#           improvements, and removal of bash-isms so that script is usable on more systems.
+# Thanks to Steve Cook for Yahoo! IP scraping help.
+# Thanks to all the additional contributors on GitHub!
+#
 # USER-DEFINABLE OPTIONS AND CUSTOM HOSTS STORED IN /etc/postwhite.conf
 # CONFIGURATION FILE CAN ALSO BE PASSED FROM COMMAND LINE
-
+#
 # NO NEED TO EDIT PAST THIS LINE
-
+#
 #################################################################
 
 # DEFAULT HOSTS
 # CUSTOM HOSTS CAN BE ADDED IN /etc/postwhite.conf
 
 # Hosts to query
-webmail_hosts="aol.com google.com microsoft.com outlook.com hotmail.com gmx.com icloud.com mail.com inbox.com zoho.com fastmail.com"
+webmail_hosts="aol.com fastmail.com google.com gmx.com hotmail.com icloud.com \
+	inbox.com mail.com microsoft.com outlook.com secure-mailgate.com zoho.com"
 
-social_hosts="facebook.com facebookmail.com twitter.com pinterest.com instagram.com tumblr.com reddit.com linkedin.com"
+social_hosts="facebook.com facebookmail.com instagram.com linkedin.com \
+	pinterest.com reddit.com tumblr.com twitter.com"
 
-commerce_hosts="craigslist.org amazon.com ebay.com paypal.com"
+commerce_hosts="amazon.com craigslist.org ebay.com paypal.com"
 
-bulk_hosts="sendgrid.com sendgrid.net mailchimp.com exacttarget.com cust-spf.exacttarget.com constantcontact.com icontact.com mailgun.com fishbowl.com fbmta.com mailjet.com sparkpost.com sparkpostmail.com"
+bulk_hosts="amazonses.com authsmtp.com constantcontact.com \
+	cust-spf.exacttarget.com exacttarget.com fbmta.com fishbowl.com \
+	icontact.com mailchimp.com mailgun.com mailjet.com messagelabs.com \
+	messagegears.net sendgrid.com sendgrid.net sparkpost.com sparkpostmail.com"
 
-misc_hosts="zendesk.com github.com"
+misc_hosts="github.com zendesk.com"
 
 permit_line_v4="%s\tpermit\n"
 reject_line_v4="%s\treject\n"
@@ -58,29 +63,26 @@ set -e
 printf "Starting Postwhite v$version ($lastupdated)\n"
 
 # Check for passed config file
+config_file="/etc/postwhite.conf"
 if [ -n "$1" ]; then
 	config_file="$1"
-else
-	config_file="/etc/postwhite.conf"
 fi
 
 # Read config file options
-if [ -s $config_file ] ; then
-	printf "\nReading options from %s...\n" "$config_file"
-	. "${config_file}"
-else
-	>&2 printf "%s: Can't find %s. Exiting.\n" "$0" "$config_file"
+if [ ! -s $config_file ] ; then
+	printf "%s: Can't find %s. Exiting.\n" "$0" "$config_file" 1>&2
 	exit 1
 fi
+printf "\nReading options from %s...\n" "$config_file"
+. "${config_file}"
 
 # Create temporary files
 printf "\nCreating temporary files...\n"
 tmpBase=$(basename "$0")
 
+tmpPrefix="tmp"
 if [ x"$enable_blacklist" = x"yes" ]; then
 	tmpPrefix="tmp blktmp"
-else
-	tmpPrefix="tmp"
 fi
 
 for p in $tmpPrefix; do
@@ -137,7 +139,7 @@ normalize_ip() {
 	# split by ":"
 	normalize_ip_type="$( echo $1 | cut -s -d\: -f1)"
 	normalize_ip_value="$( echo $1 | cut -s -d\: -f2-)"
-		normalize_ip_IP=""
+	normalize_ip_IP=""
 	if [ x"${normalize_ip_type}" = x"ip4" ] ; then
 		# check if is a CIDR
 		if expr "x${normalize_ip_value}" : "x.*/[0-9]*" > /dev/null; then
@@ -162,9 +164,9 @@ query_black_host() {
 
 # Create progress dots function
 show_dots() {
-	while ps "$1" >/dev/null ; do
-	printf "."
-	sleep 1
+	while ps "$1" >/dev/null; do
+		printf "."
+		sleep 1
 	done
 	printf "\n"
 }
@@ -270,7 +272,7 @@ if [ x"$simplify" = x"yes" ]; then
 	printf "\nSimplifying whitelist IP addresses already included in CIDR ranges. These calculations\n"
 	printf "can take a LONG time if you have many mailers selected. Please be patient..."
 	
-	cat "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
+	sed '/\./s/\/32//g' "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots "$!"
 
 	if [ x"$enable_blacklist" = x"yes" ] ; then
@@ -282,7 +284,7 @@ if [ x"$simplify" = x"yes" ]; then
 	
 	printf "\nIP address simplification complete.\n"
 else
-	cat "${tmp1}" > "${tmp2}"
+	sed '/\./s/\/32//g' "${tmp1}" > "${tmp2}"
 	if [ x"$enable_blacklist" = x"yes" ] ; then
 		cat "${blktmp1}" > "${blktmp2}"
 	fi
