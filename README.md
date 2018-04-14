@@ -75,7 +75,7 @@ To add your own additional custom hosts, add them to the ```custom_hosts``` sect
 
 Additional trusted mailers are added to the script from time to time, so check back periodically for new versions, or "Watch" this repo to receive update notifications.
 
-## Hosts That Don't Publish Their Outbound Mailers via SPF Records
+## Hosts that Don't Publish their Outbound Mailers via SPF Records
 Because Postwhite relies on published SPF records to build its whitelist, mailers who refuse to publish outbound mailer IP addresses via SPF are problematic. The largest such host is Yahoo!, which is dealt with separately (see below). For smaller mailhosts without SPF-published mailer lists, the included `query_host_ovh` file is a working example of a script that queries a range of hostnames for a specific mailer (`mail-out.ovh.net` in the included example), collects valid IP addresses, and includes them in a custom whitelist. The new custom whitelist may then be included in as an additional entry in your Postfix's `postscreen_access_list` parameter (see **Usage** above).
 
 To create additional customized query scripts for mailers that don't publish outbound IPs via SPF, copy the example `query_host_ovh` file to a new unique filename, edit the script's mailhost and numerical range values as required, set a unique output file (`/etc/postfix/postscreen_*_whitelist.cidr`), include the output file in Postfix's `postscreen_access_list` parameter, then configure cron to run the new query script periodically.
