@@ -9,8 +9,8 @@
 # By Jesse Norell (https://github.com/jnorell)
 # and Steve Jenkins (https://www.stevejenkins.com/)
 
-version="1.0"
-lastupdated="14 April 2018"
+version="1.1"
+lastupdated="16 April 2018"
 
 temp_file="/tmp/ovh_hosts.txt"
 whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
@@ -36,8 +36,8 @@ printf "Querying outbound IP addresses. This could take a while...\n"
 
 # Query user-defined mailer range
 
-for a in {1..50};
-        do for b in {1..50};
+for a in {1..99};
+        do for b in {1..300};
                 do host ${a}.mo${b}.mail-out.ovh.net;
         done;
 done > $temp_file
