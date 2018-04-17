@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ###########################################################################
 # Query Mailer - Generates a Postscreen whitelist for a mailhost that     #
