@@ -12,9 +12,8 @@
 version="1.1"
 lastupdated="16 April 2018"
 
-temp_file="/tmp/ovh_hosts.txt"
 whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
-        
+
 ###########################################################################
         
 # This script uses "mail-out.ovh.net" as a working example of a mailhost
@@ -29,6 +28,11 @@ whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
 
 ###########################################################################
 
+# tmp file location and cleanup
+umask 022
+temp_file=$(mktemp --tmpdir ovh_hosts.XXXXXXXXXX)
+trap "rm -f ${temp_file};" EXIT    # clean up tmp file on exit
+
 # Uncomment to see output
 set -x
 
@@ -40,13 +44,13 @@ for a in {1..99};
         do for b in {1..300};
                 do host ${a}.mo${b}.mail-out.ovh.net;
         done;
-done > $temp_file
+done > "${temp_file}"
 
 # Format queried hosts
 
 printf "Formatting custom whitelist...\n"
 
-grep 'has address' /tmp/ovh_hosts.txt | awk '{print $4 " permit"}' | sort -uV  > $whitelist_file
+grep 'has address' "${temp_file}" | awk '{print $4 " permit"}' | sort -uV  > "${whitelist_file}"
 
 # Restart Postfix
 
