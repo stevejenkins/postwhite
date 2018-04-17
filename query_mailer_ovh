@@ -14,6 +14,9 @@ lastupdated="16 April 2018"
 
 whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
 
+# set debug=true to display output as this script runs
+debug=true
+
 ###########################################################################
         
 # This script uses "mail-out.ovh.net" as a working example of a mailhost
@@ -28,15 +31,25 @@ whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
 
 ###########################################################################
 
-# tmp file location and cleanup
+# If debug=true, show script commands as they are run
+[ "${debug}" = true ] && set -x
+
+# If debug=true, print message output, else hide it
+if [ "${debug}" = true ]; then
+    function debug() { printf "$@"; }
+else
+    function debug() { :; }
+fi
+
 umask 022
+
+# create tmp file
 temp_file=$(mktemp --tmpdir ovh_hosts.XXXXXXXXXX)
-trap "rm -f ${temp_file};" EXIT    # clean up tmp file on exit
 
-# Uncomment to see output
-set -x
+# clean up tmp file on exit
+trap "rm -f ${temp_file};" EXIT
 
-printf "Querying outbound IP addresses. This could take a while...\n"
+debug "Querying outbound IP addresses. This could take a while...\n"
 
 # Query user-defined mailer range
 
@@ -48,18 +61,18 @@ done > "${temp_file}"
 
 # Format queried hosts
 
-printf "Formatting custom whitelist...\n"
+debug "Formatting custom whitelist...\n"
 
 grep 'has address' "${temp_file}" | awk '{print $4 " permit"}' | sort -uV  > "${whitelist_file}"
 
 # Restart Postfix
 
-printf "Restarting Postfix...\n"
+debug "Restarting Postfix...\n"
 
-postfix reload
+[ "${debug}" = true ] && postfix reload || postfix reload 2>/dev/null
 
 # All done!
 
-printf "Done!\n"
+debug "Done!\n"
 
 exit
