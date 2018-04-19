@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ###########################################################################
 # Query Mailer - Generates a Postscreen whitelist for a mailhost that     #
@@ -9,12 +9,14 @@
 # By Jesse Norell (https://github.com/jnorell)
 # and Steve Jenkins (https://www.stevejenkins.com/)
 
-version="1.1"
-lastupdated="16 April 2018"
+version="1.2"
+lastupdated="17 April 2018"
 
-temp_file="/tmp/ovh_hosts.txt"
 whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
-        
+
+# set debug=true to display output as this script runs
+debug=false
+
 ###########################################################################
         
 # This script uses "mail-out.ovh.net" as a working example of a mailhost
@@ -29,33 +31,73 @@ whitelist_file="/etc/postfix/postscreen_ovh_whitelist.cidr"
 
 ###########################################################################
 
-# Uncomment to see output
-set -x
+# If debug=true, show script commands as they are run
+[ "${debug}" = true ] && set -x
 
-printf "Querying outbound IP addresses. This could take a while...\n"
+# If debug=true, print message output, else hide it
+if [ "${debug}" = true ]; then
+    function debug() { printf "$@"; }
+else
+    function debug() { :; }
+fi
+
+umask 022
+
+# create tmp file
+temp_file=$(mktemp --tmpdir ovh_hosts.XXXXXXXXXX)
+
+# clean up tmp file on exit unless debug=true
+[ "${debug}" = true ] || trap "rm -f ${temp_file};" EXIT
+
+debug "Querying outbound IP addresses. This could take a while...\n"
 
 # Query user-defined mailer range
+#
+# OVH uses the format: ${a}.mo${b}.mail-out.ovh.net;
+# not all valid "b" values are consecutive;
+# in testing, the mo${b}.mail-out.ovh.net level resolves to an address,
+# so for efficiency we'll skip any that don't resolve
 
-for a in {1..99};
-        do for b in {1..300};
-                do host ${a}.mo${b}.mail-out.ovh.net;
+for b in {1..300}; do
+    if ( host mo${b}.mail-out.ovh.net 2>&1 ); then
+        for a in {1..99}; do
+            host ${a}.mo${b}.mail-out.ovh.net 2>&1
         done;
-done > $temp_file
+
+	: ${a++}
+
+        # test if 'a' should be increased
+        if ( host ${a}.mo${b}.mail-out.ovh.net 2>&1 ); then
+            echo "Note: ${a}mo${b}.mail-out.ovh.net resolves to an address," 1>&2
+            echo "you should edit this script and increase the max range for 'a'." 1>&2
+        fi
+    fi
+done > "${temp_file}"
+
+: ${b++}
+
+# test if 'b' should be increased
+if ( host mo${b}.mail-out.ovh.net 2>&1 >/dev/null ); then
+    echo "Note: mo${b}.mail-out.ovh.net resolves to an address," 1>&2
+    echo "you should edit this script and increase the max range for 'b'." 1>&2
+fi
 
 # Format queried hosts
 
-printf "Formatting custom whitelist...\n"
+debug "Formatting custom whitelist...\n"
 
-grep 'has address' /tmp/ovh_hosts.txt | awk '{print $4 " permit"}' | sort -uV  > $whitelist_file
+grep 'has address' "${temp_file}" | awk '{print $4 " permit"}' | sort -uV  > "${whitelist_file}"
 
 # Restart Postfix
 
-printf "Restarting Postfix...\n"
+debug "Restarting Postfix...\n"
 
-postfix reload
+[ "${debug}" = true ] && postfix reload || postfix reload 2>/dev/null
+
+debug "Hostname lookups preserved in file: ${temp_file}\n"
 
 # All done!
 
-printf "Done!\n"
+debug "Done!\n"
 
 exit
