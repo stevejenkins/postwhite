@@ -47,7 +47,7 @@ commerce_hosts="amazon.com craigslist.org ebay.com paypal.com"
 bulk_hosts="amazonses.com authsmtp.com constantcontact.com \
 	cust-spf.exacttarget.com exacttarget.com fbmta.com fishbowl.com \
 	icontact.com mailchimp.com mailgun.com mailjet.com messagelabs.com \
-	messagegears.net sendgrid.com sendgrid.net sparkpost.com sparkpostmail.com"
+	messagegears.net sendgrid.com sendgrid.net sparkpost.com sparkpostmail.com srv2.de"
 
 misc_hosts="github.com zendesk.com"
 
