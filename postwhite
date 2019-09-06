@@ -164,7 +164,7 @@ query_black_host() {
 
 # Create progress dots function
 show_dots() {
-	while ps "$1" >/dev/null; do
+	while ls /proc/"$1" > /dev/null 2>&1   ; do
 		printf "."
 		sleep 1
 	done
