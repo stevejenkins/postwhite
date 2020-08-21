@@ -37,7 +37,7 @@ lastupdated="14 April 2018"
 
 # Hosts to query
 webmail_hosts="aol.com fastmail.com google.com gmx.com hotmail.com icloud.com \
-	inbox.com mail.com microsoft.com outlook.com secure-mailgate.com zoho.com"
+	inbox.com mail.com microsoft.com outlook.com secure-mailgate.com zoho.com simplelogin.co"
 
 social_hosts="facebook.com facebookmail.com instagram.com linkedin.com \
 	pinterest.com reddit.com tumblr.com twitter.com"
@@ -271,7 +271,7 @@ fi
 if [ x"$simplify" = x"yes" ]; then
 	printf "\nSimplifying whitelist IP addresses already included in CIDR ranges. These calculations\n"
 	printf "can take a LONG time if you have many mailers selected. Please be patient..."
-	
+
 	sed '/\./s/\/32//g' "${tmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${tmp2}" &
 	show_dots "$!"
 
@@ -281,7 +281,7 @@ if [ x"$simplify" = x"yes" ]; then
 			cat "${blktmp1}" | sort -u | "${spftoolspath}"/simplify.sh > "${blktmp2}" &
 			show_dots "$!"
 	fi
-	
+
 	printf "\nIP address simplification complete.\n"
 else
 	sed '/\./s/\/32//g' "${tmp1}" > "${tmp2}"
