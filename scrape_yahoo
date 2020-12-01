@@ -8,10 +8,11 @@
 # By Steve Cook (https://www.stevecook.net/)
 # and Steve Jenkins (https://www.stevejenkins.com/)
 
-version="1.0"
-lastupdated="30 April 2017"
+version="1.1"
+lastupdated="01 December 2020"
 
-yahoo_url="https://help.yahoo.com/kb/SLN23997.html"
+# Verizon, AOL and Yahoo servers have allegedly merged.
+yahoo_url="https://postmaster.verizonmedia.com/mail-servers"
 
 # NO NEED TO EDIT PAST THIS LINE
 
@@ -41,10 +42,10 @@ fi
 # Check for wget or curl
 if [ `command -v wget` ]
 then
-        content=$(wget $yahoo_url -q -O -)
+        content=$(wget --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0" $yahoo_url -q -O -)
 elif [ -n `command -v curl` ]
 then
-        content=$(curl -s -L $yahoo_url)
+        content=$(curl -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0" -s -L $yahoo_url)
 else
         echo "wget or curl required.";
         exit 1;
@@ -62,6 +63,6 @@ ipv6_mailers=$(echo "$content" | grep -E -o '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F
 # Append IPv6 hosts to newly-created Yahoo! mailer list
 echo "$ipv6_mailers" >> "$yahoo_static_hosts"
 
-printf '\nYahoo! outbound mailers updated.\n'
+printf '\nVerizon/AOL/Yahoo! outbound mailers updated.\n'
 
 exit
